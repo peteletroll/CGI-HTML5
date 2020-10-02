@@ -1,0 +1,6 @@
+Revision history for Perl extension CGI::HTML.
+
+0.01  Fri Oct  2 18:03:16 2020
+	- original version; created by h2xs 1.23 with options
+		-AX --skip-exporter CGI::HTML
+
