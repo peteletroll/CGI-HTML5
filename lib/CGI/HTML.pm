@@ -4,7 +4,8 @@ use 5.028001;
 use strict;
 use warnings;
 
-use CGI;
+use CGI qw(-utf8);
+binmode STDOUT, ":utf8";
 
 our @ISA = qw(CGI);
 
@@ -13,8 +14,15 @@ our $VERSION = '0.01';
 sub new($@) {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
+	$new->charset("utf8");
 	return $new;
 }
+
+sub clone($) {
+	$_[0]->new($_[0]);
+}
+
+### escaping utilities
 
 {
 	package CGI::HTML::EscapedString;
@@ -22,10 +30,12 @@ sub new($@) {
 }
 
 sub escaped($) {
-	return bless \(my $s = "$_[0]"), "CGI::HTML::EscapedString";
+	my ($s) = shift;
+	utf8::upgrade($s);
+	bless \$s, "CGI::HTML::EscapedString";
 }
 
-my %ENT = (
+our %ENT = (
 	"<" => "&lt;",
 	">" => "&gt;",
 	"&" => "&amp;",
