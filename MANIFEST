@@ -2,5 +2,7 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/000-use.t
 lib/CGI/HTML.pm
+t/000-use.t
+t/001-new.t
+t/002-escape.t

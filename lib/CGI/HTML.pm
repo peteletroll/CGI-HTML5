@@ -10,8 +10,39 @@ our @ISA = qw(CGI);
 
 our $VERSION = '0.01';
 
+sub new($@) {
+	my $pkg = shift;
+	my $new = $pkg->SUPER::new(@_);
+	return $new;
+}
 
-# Preloaded methods go here.
+{
+	package CGI::HTML::EscapedString;
+	use overload '""' => sub { ${$_[0]} };
+}
+
+sub escaped($) {
+	return bless \(my $s = "$_[0]"), "CGI::HTML::EscapedString";
+}
+
+my %ENT = (
+	"<" => "&lt;",
+	">" => "&gt;",
+	"&" => "&amp;",
+	"\"" => "&quot;",
+);
+
+sub escape_text($) {
+	my ($s) = @_;
+	$s =~ s{([<>&])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	escaped $s
+}
+
+sub escape_attr($) {
+	my ($s) = @_;
+	$s =~ s{([<>&'"\x00-\x19])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	escaped $s
+}
 
 1;
 __END__
