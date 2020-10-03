@@ -120,6 +120,7 @@ our %ENT = (
 	">" => "&gt;",
 	"&" => "&amp;",
 	"\"" => "&quot;",
+	"\xa0" => "&nbsp;",
 );
 
 {
@@ -135,13 +136,13 @@ sub _escaped($) {
 
 sub _escape_text($) {
 	my ($s) = @_;
-	$s =~ s{([<>&])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	$s =~ s{([<>&\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
 	_escaped $s
 }
 
 sub _escape_attr($) {
 	my ($s) = @_;
-	$s =~ s{([<>&'"\x00-\x19])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	$s =~ s{([<>&'"\x00-\x19\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
 	$s
 }
 
