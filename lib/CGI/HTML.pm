@@ -4,6 +4,8 @@ use 5.028001;
 use strict;
 use warnings;
 
+use Carp;
+
 use CGI qw(-utf8);
 binmode STDOUT, ":utf8";
 
@@ -22,6 +24,58 @@ sub clone($) {
 	$_[0]->new($_[0]);
 }
 
+### initialization
+
+our @TAG = qw(
+	a abbr acronym address area
+	b base bdo big blockquote body br button
+	caption cite code col colgroup
+	dd del dfn div dl dt
+	em
+	fieldset form frame frameset
+	h1 h2 h3 h4 h5 h6
+	head hr html
+	i iframe img input ins
+	kbd
+	label legend li link
+	map meta
+	noframes noscript
+	object ol optgroup option
+	p param pre
+	q
+	samp script select small span strong style sub sup
+	table tbody td textarea tfoot th thead title tr tt
+	ul
+	var
+);
+
+our %CLOSED = map { $_ => 1 } qw(
+	area
+	base br
+	col
+	frame
+	hr
+	img input
+	link
+	meta
+	param
+);
+
+### tag utilities
+
+sub open_tag($$) {
+	my ($t, $a) = @_;
+	$t =~ /[\s<>&'"=\/]/ and croak "unsafe tag name '$t'";
+	$a = attr($a);
+	escaped("<$t$a>")
+}
+
+sub close_tag($) {
+	my ($t) = shift;
+	$t =~ /[\s<>&'"=\/]/ and croak "unsafe tag name '$t'";
+	escaped("</$t>")
+}
+
 ### attribute utilities
 
 sub attr($) {
@@ -30,7 +84,7 @@ sub attr($) {
 	foreach my $n (sort keys %$a) {
 		my $v = $a->{$n};
 		defined $v or next;
-		$n =~ /[\s<>&'"=\/]/ and die "unsafe attribute name '$n'";
+		$n =~ /[\s<>&'"=\/]/ and croak "unsafe attribute name '$n'";
 		$ret .= " $n";
 		$ret .= "=\"" . escape_attr($v) . "\"" if $v ne $n;
 	}
