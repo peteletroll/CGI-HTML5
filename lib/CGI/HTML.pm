@@ -63,22 +63,22 @@ our %CLOSED = map { $_ => 1 } qw(
 
 ### tag utilities
 
-sub open_tag($$) {
+sub _open_tag($$) {
 	my ($t, $a) = @_;
 	$t =~ /[\s<>&'"=\/]/ and croak "unsafe tag name '$t'";
-	$a = attr($a);
-	escaped("<$t$a>")
+	$a = _attr($a);
+	_escaped("<$t$a>")
 }
 
-sub close_tag($) {
+sub _close_tag($) {
 	my ($t) = shift;
 	$t =~ /[\s<>&'"=\/]/ and croak "unsafe tag name '$t'";
-	escaped("</$t>")
+	_escaped("</$t>")
 }
 
 ### attribute utilities
 
-sub attr($) {
+sub _attr($) {
 	my ($a) = @_;
 	my $ret = "";
 	foreach my $n (sort keys %$a) {
@@ -86,7 +86,7 @@ sub attr($) {
 		defined $v or next;
 		$n =~ /[\s<>&'"=\/]/ and croak "unsafe attribute name '$n'";
 		$ret .= " $n";
-		$ret .= "=\"" . escape_attr($v) . "\"" if $v ne $n;
+		$ret .= "=\"" . _escape_attr($v) . "\"" if $v ne $n;
 	}
 	$ret
 }
@@ -105,19 +105,19 @@ our %ENT = (
 	use overload '""' => sub { ${$_[0]} };
 }
 
-sub escaped($) {
+sub _escaped($) {
 	my ($s) = shift;
 	utf8::upgrade($s);
 	bless \$s, "CGI::HTML::EscapedString";
 }
 
-sub escape_text($) {
+sub _escape_text($) {
 	my ($s) = @_;
 	$s =~ s{([<>&])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
-	escaped $s
+	_escaped $s
 }
 
-sub escape_attr($) {
+sub _escape_attr($) {
 	my ($s) = @_;
 	$s =~ s{([<>&'"\x00-\x19])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
 	$s
