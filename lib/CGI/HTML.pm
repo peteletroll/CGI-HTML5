@@ -75,19 +75,19 @@ foreach my $tag (@TAG) {
 	$CGI::HTML::{$fname} and next;
 	if ($CLOSED{$tag}) {
 		$CGI::HTML::{$fname} = sub {
-			@_ > 2 and croak "no content allowed in <$tag>";
-			my ($self, $attr) = @_;
+			my $self = shift;
+			my $attr = (ref $_[0] eq "HASH" ? shift : undef);
+			@_ and croak "no content allowed in <$tag>";
 			_escaped(_open_tag($tag, $attr) . $nl)
 		};
 	} else {
 		$CGI::HTML::{$fname} = sub {
 			# warn "CONTENT '$tag'\n";
-			my ($self) = shift;
+			my $self = shift;
 			my %attr = ();
 			my $open = undef;
 			my $close = _escaped(_close_tag($tag) . $nl);
 			my @ret = ();
-			@_ or croak "content required in <$tag>";
 			foreach (@_) {
 				my $c = $_;
 				# warn "ELEM '$c'\n";
@@ -100,15 +100,47 @@ foreach my $tag (@TAG) {
 					%attr = (%attr, %$c);
 					$open = undef;
 					next;
+				} elsif ($r eq "ARRAY") {
+					$c = $self->_process($c);
 				} else {
 					croak "unsupported reference to $r";
 				}
 				$open ||= _open_tag($tag, \%attr);
 				push @ret, $open, $c, $close;
 			}
+			@ret or push @ret, _open_tag($tag, \%attr), $close;
 			_escaped(join("", @ret))
 		};
 	}
+}
+
+### main processing
+
+sub _process($$) {
+	my ($self, $lst) = @_;
+	my @ret = ();
+	if (@$lst > 0 && ref $lst->[0] eq "SCALAR") {
+		my @lst = @$lst;
+		my $tag = ${shift @lst};
+		my $fname = "tag_$tag";
+		my $f = $CGI::HTML::{$fname};
+		ref $f eq "CODE" or croak "unknown tag <$tag>";
+		push @ret, $f->($self, @lst);
+	} else {
+		foreach my $c (@$lst) {
+			my $r = ref $c;
+			if (!$r) {
+				push @ret, _escape_text($c);
+			} elsif ($r eq "CGI::HTML::EscapedString") {
+				push @ret, $c;
+			} elsif ($r eq "ARRAY") {
+				push @ret, $self->_process($c);
+			} else {
+				croak "unsupported reference to $r";
+			}
+		}
+	}
+	join("", @ret);
 }
 
 ### tag utilities

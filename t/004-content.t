@@ -8,13 +8,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
 
 my $Q = CGI::HTML->new();
 ok($Q);
+is_deeply($Q->tag_div(), "<div></div>\n");
 is_deeply($Q->tag_div("Hi & Bye"), "<div>Hi &amp; Bye</div>\n");
 is_deeply($Q->tag_span("Hi & Bye"), "<span>Hi &amp; Bye</span>");
 is_deeply($Q->tag_div($Q->tag_span("Hi & Bye")), "<div><span>Hi &amp; Bye</span></div>\n");
