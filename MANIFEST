@@ -7,3 +7,4 @@ t/000-use.t
 t/001-new.t
 t/002-escape.t
 t/003-closed.t
+t/004-content.t

@@ -15,8 +15,8 @@ BEGIN { use_ok('CGI::HTML') };
 
 my $Q = CGI::HTML->new();
 ok($Q);
-is($Q->tag_br(), "<br>");
-is($Q->tag_img({ src => "z" }), "<img src=\"z\">");
-is($Q->tag_input({ type => "checkbox", checked => "checked", other => undef }),
+is_deeply($Q->tag_br(), "<br>");
+is_deeply($Q->tag_img({ src => "z" }), "<img src=\"z\">");
+is_deeply($Q->tag_input({ type => "checkbox", checked => "checked", other => undef }),
 	"<input checked type=\"checkbox\">");
 

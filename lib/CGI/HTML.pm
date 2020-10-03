@@ -77,10 +77,37 @@ foreach my $tag (@TAG) {
 		$CGI::HTML::{$fname} = sub {
 			@_ > 2 and croak "no content allowed in <$tag>";
 			my ($self, $attr) = @_;
-			_open_tag($tag, $attr) . $nl
+			_escaped(_open_tag($tag, $attr) . $nl)
 		};
 	} else {
-		# warn "OPEN '$_'\n";
+		$CGI::HTML::{$fname} = sub {
+			# warn "CONTENT '$tag'\n";
+			my ($self) = shift;
+			my %attr = ();
+			my $open = undef;
+			my $close = _escaped(_close_tag($tag) . $nl);
+			my @ret = ();
+			@_ or croak "content required in <$tag>";
+			foreach (@_) {
+				my $c = $_;
+				# warn "ELEM '$c'\n";
+				my $r = ref $c;
+				if (!$r) {
+					$c = _escape_text($c);
+				} elsif ($r eq "CGI::HTML::EscapedString") {
+					# nothing
+				} elsif ($r eq "HASH") {
+					%attr = (%attr, %$c);
+					$open = undef;
+					next;
+				} else {
+					croak "unsupported reference to $r";
+				}
+				$open ||= _open_tag($tag, \%attr);
+				push @ret, $open, $c, $close;
+			}
+			_escaped(join("", @ret))
+		};
 	}
 }
 
@@ -89,12 +116,12 @@ foreach my $tag (@TAG) {
 sub _open_tag($$) {
 	my ($t, $a) = @_;
 	$a = _attr($a);
-	_escaped("<$t$a>")
+	"<$t$a>"
 }
 
 sub _close_tag($) {
 	my ($t) = @_;
-	_escaped("</$t>")
+	"</$t>"
 }
 
 ### attribute utilities
