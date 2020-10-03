@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
@@ -17,4 +17,6 @@ my $Q = CGI::HTML->new();
 ok($Q);
 is($Q->tag_br(), "<br>");
 is($Q->tag_img({ src => "z" }), "<img src=\"z\">");
+is($Q->tag_input({ type => "checkbox", checked => "checked", other => undef }),
+	"<input checked type=\"checkbox\">");
 

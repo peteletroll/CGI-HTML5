@@ -75,7 +75,7 @@ foreach my $tag (@TAG) {
 	$CGI::HTML::{$fname} and next;
 	if ($CLOSED{$tag}) {
 		$CGI::HTML::{$fname} = sub {
-			@_ > 2 and croak "no content allowed in <$tag>\n";
+			@_ > 2 and croak "no content allowed in <$tag>";
 			my ($self, $attr) = @_;
 			_open_tag($tag, $attr) . $nl
 		};
