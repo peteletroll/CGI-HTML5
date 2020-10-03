@@ -6,3 +6,4 @@ lib/CGI/HTML.pm
 t/000-use.t
 t/001-new.t
 t/002-escape.t
+t/003-closed.t

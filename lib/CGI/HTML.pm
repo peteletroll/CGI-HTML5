@@ -26,7 +26,7 @@ sub clone($) {
 
 ### initialization
 
-our @TAG = qw(
+my @TAG = qw(
 	a abbr acronym address area
 	b base bdo big blockquote body br button
 	caption cite code col colgroup
@@ -49,7 +49,7 @@ our @TAG = qw(
 	var
 );
 
-our %CLOSED = map { $_ => 1 } qw(
+my %CLOSED = map { $_ => 1 } qw(
 	area
 	base br
 	col
@@ -61,18 +61,39 @@ our %CLOSED = map { $_ => 1 } qw(
 	param
 );
 
+my %NEWLINE = map { $_ => 1 } qw(
+	body
+	div
+	head html
+	p
+	table tr
+);
+
+foreach my $tag (@TAG) {
+	my $fname = "tag_$tag";
+	my $nl = $NEWLINE{$tag} ? "\n" : "";
+	$CGI::HTML::{$fname} and next;
+	if ($CLOSED{$tag}) {
+		$CGI::HTML::{$fname} = sub {
+			@_ > 2 and croak "no content allowed in <$tag>\n";
+			my ($self, $attr) = @_;
+			_open_tag($tag, $attr) . $nl
+		};
+	} else {
+		# warn "OPEN '$_'\n";
+	}
+}
+
 ### tag utilities
 
 sub _open_tag($$) {
 	my ($t, $a) = @_;
-	$t =~ /[\s<>&'"=\/]/ and croak "unsafe tag name '$t'";
 	$a = _attr($a);
 	_escaped("<$t$a>")
 }
 
 sub _close_tag($) {
-	my ($t) = shift;
-	$t =~ /[\s<>&'"=\/]/ and croak "unsafe tag name '$t'";
+	my ($t) = @_;
 	_escaped("</$t>")
 }
 
@@ -80,6 +101,7 @@ sub _close_tag($) {
 
 sub _attr($) {
 	my ($a) = @_;
+	$a or return "";
 	my $ret = "";
 	foreach my $n (sort keys %$a) {
 		my $v = $a->{$n};
