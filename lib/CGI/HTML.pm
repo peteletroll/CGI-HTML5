@@ -22,7 +22,29 @@ sub clone($) {
 	$_[0]->new($_[0]);
 }
 
+### attribute utilities
+
+sub attr($) {
+	my ($a) = @_;
+	my $ret = "";
+	foreach my $n (sort keys %$a) {
+		my $v = $a->{$n};
+		defined $v or next;
+		$n =~ /[\s<>&'"=\/]/ and die "unsafe attribute name '$n'";
+		$ret .= " $n";
+		$ret .= "=\"" . escape_attr($v) . "\"" if $v ne $n;
+	}
+	$ret
+}
+
 ### escaping utilities
+
+our %ENT = (
+	"<" => "&lt;",
+	">" => "&gt;",
+	"&" => "&amp;",
+	"\"" => "&quot;",
+);
 
 {
 	package CGI::HTML::EscapedString;
@@ -35,13 +57,6 @@ sub escaped($) {
 	bless \$s, "CGI::HTML::EscapedString";
 }
 
-our %ENT = (
-	"<" => "&lt;",
-	">" => "&gt;",
-	"&" => "&amp;",
-	"\"" => "&quot;",
-);
-
 sub escape_text($) {
 	my ($s) = @_;
 	$s =~ s{([<>&])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
@@ -51,7 +66,7 @@ sub escape_text($) {
 sub escape_attr($) {
 	my ($s) = @_;
 	$s =~ s{([<>&'"\x00-\x19])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
-	escaped $s
+	$s
 }
 
 1;
