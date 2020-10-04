@@ -49,16 +49,20 @@ my @TAG = qw(
 	var
 );
 
-my %CLOSED = map { $_ => 1 } qw(
+# from https://developer.mozilla.org/en-US/docs/Glossary/empty_element
+my %EMPTY = map { $_ => 1 } qw(
 	area
 	base br
 	col
-	frame
+	embed
 	hr
 	img input
 	link
 	meta
 	param
+	source
+	track
+	wbr
 );
 
 my %NEWLINE = map { $_ => 1 } qw(
@@ -73,7 +77,7 @@ foreach my $tag (@TAG) {
 	my $fname = "tag_$tag";
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
 	$CGI::HTML::{$fname} and next;
-	if ($CLOSED{$tag}) {
+	if ($EMPTY{$tag}) {
 		$CGI::HTML::{$fname} = sub {
 			my $self = shift;
 			my $attr = (ref $_[0] eq "HASH" ? shift : undef);
