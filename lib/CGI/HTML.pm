@@ -29,6 +29,11 @@ sub tag($@) {
 	$self->_process(\@_)
 }
 
+sub literal($@) {
+	my $self = shift;
+	_escaped(join("", @_))
+}
+
 ### initialization
 
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element

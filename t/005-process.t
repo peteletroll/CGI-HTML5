@@ -28,7 +28,7 @@ is_deeply($Q->tag(
 	\"div",
 	[
 		[ \"b", "Hi" ],
-		" & ",
+		$Q->literal(" &amp; "),
 		[ \"i", "Bye" ]
 	]
 ), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
