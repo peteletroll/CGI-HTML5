@@ -6,7 +6,7 @@ use warnings;
 
 use Carp;
 
-use CGI qw(-utf8);
+use CGI qw(-utf8 -noxhtml);
 binmode STDOUT, ":utf8";
 
 our @ISA = qw(CGI);
