@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
@@ -16,11 +16,20 @@ BEGIN { use_ok('CGI::HTML') };
 my $Q = CGI::HTML->new();
 ok($Q);
 is_deeply($Q->_process([
-	\"div", 
+	\"div",
 	[
 		[ \"b", "Hi" ],
 		" & ",
 		[ \"i", "Bye" ]
 	]
 ]), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
+
+is_deeply($Q->tag(
+	\"div",
+	[
+		[ \"b", "Hi" ],
+		" & ",
+		[ \"i", "Bye" ]
+	]
+), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 

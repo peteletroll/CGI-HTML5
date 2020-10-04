@@ -24,6 +24,11 @@ sub clone($) {
 	$_[0]->new($_[0]);
 }
 
+sub tag($@) {
+	my $self = shift;
+	$self->_process(\@_)
+}
+
 ### initialization
 
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
