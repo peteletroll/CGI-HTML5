@@ -85,6 +85,9 @@ my %NEWLINE = map { $_ => 1 } qw(
 	table tr
 );
 
+my %DEFAULT_ATTR = (
+);
+
 foreach my $tag (@TAG) {
 	my $fname = "tag_$tag";
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
@@ -92,7 +95,8 @@ foreach my $tag (@TAG) {
 	if ($EMPTY{$tag}) {
 		$CGI::HTML::{$fname} = sub {
 			my $self = shift;
-			my $attr = (ref $_[0] eq "HASH" ? shift : undef);
+			my $attr = $DEFAULT_ATTR{$tag} || { };
+			ref $_[0] eq "HASH" and $attr = { %$attr, %{+shift} };
 			@_ and croak "no content allowed in <$tag>";
 			_escaped(_open_tag($tag, $attr), $nl)
 		};
@@ -100,7 +104,7 @@ foreach my $tag (@TAG) {
 		$CGI::HTML::{$fname} = sub {
 			# warn "CONTENT '$tag'\n";
 			my $self = shift;
-			my %attr = ();
+			my $attr = $DEFAULT_ATTR{$tag} || { };
 			my $open = undef;
 			my $close = _escaped(_close_tag($tag), $nl);
 			my @ret = ();
@@ -113,7 +117,7 @@ foreach my $tag (@TAG) {
 				} elsif ($r eq "CGI::HTML::EscapedString") {
 					push @c, $c;
 				} elsif ($r eq "HASH") {
-					%attr = (%attr, %$c);
+					$attr = { %$attr, %$c };
 					$open = undef;
 					next;
 				} elsif ($r eq "ARRAY") {
@@ -123,10 +127,10 @@ foreach my $tag (@TAG) {
 				} else {
 					croak "unsupported reference to $r";
 				}
-				$open ||= _open_tag($tag, \%attr);
+				$open ||= _open_tag($tag, $attr);
 				push @ret, $open, $_, $close foreach @c;
 			}
-			@ret or push @ret, _open_tag($tag, \%attr), $close;
+			@ret or push @ret, _open_tag($tag, $attr), $close;
 			_escaped(@ret)
 		};
 	}
