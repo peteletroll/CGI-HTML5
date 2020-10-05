@@ -208,14 +208,8 @@ our %ENT = (
 		fallback => 0;
 }
 
-sub _utf8($) {
-	my ($s) = @_;
-	utf8::upgrade($s);
-	$s
-}
-
 sub _escaped(@) {
-	bless \(join "", map { _utf8($_) } @_), "CGI::HTML::EscapedString"
+	bless \(join "", @_), "CGI::HTML::EscapedString"
 }
 
 sub _escape_text($) {
