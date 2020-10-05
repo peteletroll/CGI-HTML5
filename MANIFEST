@@ -9,3 +9,4 @@ t/002-escape.t
 t/003-closed.t
 t/004-content.t
 t/005-process.t
+t/006-process-sub.t

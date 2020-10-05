@@ -26,12 +26,12 @@ sub clone($) {
 
 sub tag($@) {
 	my $self = shift;
-	$self->_process(\@_)
+	scalar $self->_process(\@_)
 }
 
 sub literal($@) {
 	my $self = shift;
-	_escaped(join("", @_))
+	_escaped(@_)
 }
 
 ### initialization
@@ -94,7 +94,7 @@ foreach my $tag (@TAG) {
 			my $self = shift;
 			my $attr = (ref $_[0] eq "HASH" ? shift : undef);
 			@_ and croak "no content allowed in <$tag>";
-			_escaped(_open_tag($tag, $attr) . $nl)
+			_escaped(_open_tag($tag, $attr), $nl)
 		};
 	} else {
 		$CGI::HTML::{$fname} = sub {
@@ -102,30 +102,32 @@ foreach my $tag (@TAG) {
 			my $self = shift;
 			my %attr = ();
 			my $open = undef;
-			my $close = _escaped(_close_tag($tag) . $nl);
+			my $close = _escaped(_close_tag($tag), $nl);
 			my @ret = ();
 			foreach (@_) {
 				my $c = $_;
-				# warn "ELEM '$c'\n";
+				my @c = ();
 				my $r = ref $c;
 				if (!$r) {
-					$c = _escape_text($c);
+					push @c, _escape_text($c);
 				} elsif ($r eq "CGI::HTML::EscapedString") {
-					# nothing
+					push @c, $c;
 				} elsif ($r eq "HASH") {
 					%attr = (%attr, %$c);
 					$open = undef;
 					next;
 				} elsif ($r eq "ARRAY") {
-					$c = $self->_process($c);
+					push @c, scalar $self->_process($c);
+				} elsif ($r eq "CODE") {
+					push @c, $self->_process([ $c->() ]);
 				} else {
 					croak "unsupported reference to $r";
 				}
 				$open ||= _open_tag($tag, \%attr);
-				push @ret, $open, $c, $close;
+				push @ret, $open, $_, $close foreach @c;
 			}
 			@ret or push @ret, _open_tag($tag, \%attr), $close;
-			_escaped(join("", @ret))
+			_escaped(@ret)
 		};
 	}
 }
@@ -151,12 +153,14 @@ sub _process($$) {
 				push @ret, $c;
 			} elsif ($r eq "ARRAY") {
 				push @ret, $self->_process($c);
+			} elsif ($r eq "CODE") {
+				push @ret, map { $self->_process($_) } $c->();
 			} else {
 				croak "unsupported reference to $r";
 			}
 		}
 	}
-	join("", @ret);
+	wantarray ? @ret : join("", @ret);
 }
 
 ### tag utilities
@@ -203,10 +207,14 @@ our %ENT = (
 	use overload '""' => sub { ${$_[0]} };
 }
 
-sub _escaped($) {
-	my ($s) = shift;
+sub _utf8($) {
+	my ($s) = @_;
 	utf8::upgrade($s);
-	bless \$s, "CGI::HTML::EscapedString";
+	$s
+}
+
+sub _escaped(@) {
+	bless \(join "", map { _utf8($_) } @_), "CGI::HTML::EscapedString"
 }
 
 sub _escape_text($) {
