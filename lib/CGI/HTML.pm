@@ -204,7 +204,8 @@ our %ENT = (
 
 {
 	package CGI::HTML::EscapedString;
-	use overload '""' => sub { ${$_[0]} };
+	use overload '""' => sub { ${$_[0]} },
+		fallback => 0;
 }
 
 sub _utf8($) {
