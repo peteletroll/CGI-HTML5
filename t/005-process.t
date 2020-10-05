@@ -1,20 +1,25 @@
-# Before 'make install' is performed this script should be runnable with
-# 'make test'. After 'make install' it should work as 'perl CGI-HTML.t'
-
-#########################
-
-# change 'tests => 1' to 'tests => last_test_to_print';
-
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
 
 my $Q = CGI::HTML->new();
 ok($Q);
+
+my $t;
+
+$t = $Q->_process([
+	\"div",
+	[
+		[ \"b", "Hi" ],
+		" & ",
+		[ \"i", "Bye" ]
+	]
+]);
+isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($Q->_process([
 	\"div",
 	[
@@ -24,12 +29,14 @@ is_deeply($Q->_process([
 	]
 ]), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
-is_deeply($Q->tag(
-	\"div",
-	[
-		[ \"b", "Hi" ],
-		$Q->literal(" &amp; "),
-		[ \"i", "Bye" ]
-	]
-), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
+$t = $Q->tag(
+        \"div",
+        [
+                [ \"b", "Hi" ],
+                $Q->literal(" &amp; "),
+                [ \"i", "Bye" ]
+        ]
+);
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 

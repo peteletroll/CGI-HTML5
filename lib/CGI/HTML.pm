@@ -160,7 +160,7 @@ sub _process($$) {
 			}
 		}
 	}
-	wantarray ? @ret : join("", @ret);
+	wantarray ? @ret : join("", @ret)
 }
 
 ### tag utilities
