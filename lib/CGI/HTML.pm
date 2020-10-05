@@ -160,7 +160,7 @@ sub _process($$) {
 			}
 		}
 	}
-	wantarray ? @ret : join("", @ret)
+	wantarray ? @ret : _escaped(join("", @ret))
 }
 
 ### tag utilities
@@ -221,7 +221,7 @@ sub _escaped(@) {
 sub _escape_text($) {
 	my ($s) = @_;
 	$s =~ s{([<>&\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
-	_escaped $s
+	_escaped($s)
 }
 
 sub _escape_attr($) {
