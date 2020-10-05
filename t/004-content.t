@@ -8,22 +8,42 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 15;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
 
 my $Q = CGI::HTML->new();
 ok($Q);
-is_deeply($Q->tag_div(), "<div></div>\n");
-is_deeply($Q->tag_div("Hi & Bye"), "<div>Hi &amp; Bye</div>\n");
-is_deeply($Q->tag_span("Hi & Bye"), "<span>Hi &amp; Bye</span>");
-is_deeply($Q->tag_div($Q->tag_span("Hi & Bye")), "<div><span>Hi &amp; Bye</span></div>\n");
-is_deeply($Q->tag_span($Q->tag_div("Hi & Bye")), "<span><div>Hi &amp; Bye</div>\n</span>");
-is_deeply($Q->tag_div({ class => "c1" }, "Hi",
-	{ class => "c2" }, "Bye"),
-	"<div class=\"c1\">Hi</div>\n<div class=\"c2\">Bye</div>\n");
-is_deeply($Q->tag_span({ class => "c1" }, "Hi",
-	{ class => "c2" }, "Bye"),
-	"<span class=\"c1\">Hi</span><span class=\"c2\">Bye</span>");
+
+my $t;
+
+$t = $Q->tag_div();
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<div></div>\n");
+
+$t = $Q->tag_div("Hi & Bye");
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<div>Hi &amp; Bye</div>\n");
+
+$t = $Q->tag_span("Hi & Bye");
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<span>Hi &amp; Bye</span>");
+
+$t = $Q->tag_div($Q->tag_span("Hi & Bye"));
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<div><span>Hi &amp; Bye</span></div>\n");
+
+$t = $Q->tag_span($Q->tag_div("Hi & Bye"));
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<span><div>Hi &amp; Bye</div>\n</span>");
+
+$t = $Q->tag_div({ class => "c1" }, "Hi",
+	{ class => "c2" }, "Bye");
+isa_ok($t, "CGI::HTML::EscapedString");
+is_deeply($t, "<div class=\"c1\">Hi</div>\n<div class=\"c2\">Bye</div>\n");
+
+$t = $Q->tag_span({ class => "c1" }, "Hi",
+	{ class => "c2" }, "Bye");
+is_deeply($t, "<span class=\"c1\">Hi</span><span class=\"c2\">Bye</span>");
 
