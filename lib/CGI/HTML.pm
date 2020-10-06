@@ -141,6 +141,43 @@ foreach my $tag (@TAG) {
 
 ### main processing
 
+sub _to_html($$;$$) {
+	my ($self, $obj, $attr, $allow_tag) = @_;
+	defined $obj or return wantarray ? () : undef;
+	my $r = ref $obj;
+	$r or return _escaped($obj);
+	$r eq "CGI::HTML::EscapedString" and return $obj;
+	$r eq "ARRAY" or croak "bad _to_html($r) call";
+
+	my $fun = undef;
+	my @lst = @$obj;
+	my @ret = ();
+
+	if (@lst && ref $lst[0] eq "SCALAR") {
+		my $tag = ${shift @lst};
+		$allow_tag or croak "tag <$tag> not allowed here";
+		$fun = $CGI::HTML::{"tag_$tag"};
+		ref $fun eq "CODE" or croak "unknown tag <$tag>";
+	}
+
+	while (@lst) {
+		my $elt = shift @lst;
+		my $r = ref $elt;
+		if ($r eq "CODE") {
+			unshift @lst, ($elt->());
+			next;
+		}
+		if ($attr && $r eq "HASH") {
+			%$attr = (%$attr, %$elt);
+			next;
+		}
+		push @ret, scalar $self->_to_html($elt);
+	}
+
+	$fun and return $fun->($self, @ret);
+	wantarray ? @ret : _escaped(join("", @ret))
+}
+
 sub _process($$) {
 	my ($self, $lst) = @_;
 	my @ret = ();
