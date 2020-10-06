@@ -108,8 +108,9 @@ foreach my $tag (@TAG) {
 			my $open = undef;
 			my $close = _escaped(_close_tag($tag), $nl);
 			my @ret = ();
-			foreach (@_) {
-				my $c = $_;
+			my @lst = @_;
+			while (@lst) {
+				my $c = shift @lst;
 				my @c = ();
 				my $r = ref $c;
 				if (!$r) {
@@ -123,7 +124,8 @@ foreach my $tag (@TAG) {
 				} elsif ($r eq "ARRAY") {
 					push @c, scalar $self->_process($c);
 				} elsif ($r eq "CODE") {
-					push @c, $self->_process([ $c->() ]);
+					unshift @lst, ($c->());
+					next;
 				} else {
 					croak "unsupported reference to $r";
 				}
@@ -149,7 +151,8 @@ sub _process($$) {
 		ref $f eq "CODE" or croak "unknown tag <$tag>";
 		push @ret, $f->($self, @lst);
 	} else {
-		foreach my $c (@$lst) {
+		while (@$lst) {
+			my $c = shift @$lst;
 			my $r = ref $c;
 			if (!$r) {
 				push @ret, _escape_text($c);
@@ -158,7 +161,8 @@ sub _process($$) {
 			} elsif ($r eq "ARRAY") {
 				push @ret, $self->_process($c);
 			} elsif ($r eq "CODE") {
-				push @ret, map { $self->_process($_) } $c->();
+				unshift @$lst, ($c->());
+				next;
 			} else {
 				croak "unsupported reference to $r";
 			}
