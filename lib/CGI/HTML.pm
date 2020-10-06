@@ -111,6 +111,7 @@ foreach my $tag (@TAG) {
 			my @lst = @_;
 			while (@lst) {
 				my $c = shift @lst;
+				defined $c or next;
 				my @c = ();
 				my $r = ref $c;
 				if (!$r) {
@@ -153,6 +154,7 @@ sub _process($$) {
 	} else {
 		while (@$lst) {
 			my $c = shift @$lst;
+			defined $c or next;
 			my $r = ref $c;
 			if (!$r) {
 				push @ret, _escape_text($c);
