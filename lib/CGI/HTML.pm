@@ -142,7 +142,7 @@ foreach my $tag (@TAG) {
 ### main processing
 
 sub _to_html($$;$$) {
-	my ($self, $obj, $attr, $allow_tag) = @_;
+	my ($self, $obj, $allow_attr, $allow_tag) = @_;
 	defined $obj or return wantarray ? () : undef;
 	my $r = ref $obj;
 	$r or return _escaped($obj);
@@ -162,16 +162,18 @@ sub _to_html($$;$$) {
 
 	while (@lst) {
 		my $elt = shift @lst;
+		defined $elt or next;
 		my $r = ref $elt;
 		if ($r eq "CODE") {
 			unshift @lst, ($elt->());
 			next;
 		}
-		if ($attr && $r eq "HASH") {
-			%$attr = (%$attr, %$elt);
+		if ($r eq "HASH") {
+			$allow_attr || $fun or croak "attributes not allowed here";
+			push @ret, $elt;
 			next;
 		}
-		push @ret, scalar $self->_to_html($elt);
+		push @ret, scalar $self->_to_html($elt, 0, 1);
 	}
 
 	$fun and return $fun->($self, @ret);
