@@ -37,7 +37,7 @@ sub literal($@) {
 ### initialization
 
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-my @TAG = qw(
+my @TAGLIST = qw(
 	a abbr address area article aside audio
 	b base bdi bdo blockquote body br button
 	canvas caption cite code col colgroup
@@ -88,7 +88,7 @@ my %NEWLINE = map { $_ => 1 } qw(
 my %DEFAULT_ATTR = (
 );
 
-foreach my $tag (@TAG) {
+foreach my $tag (@TAGLIST) {
 	my $fname = "tag_$tag";
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
 	$CGI::HTML::{$fname} and next;
