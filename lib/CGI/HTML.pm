@@ -119,7 +119,7 @@ foreach my $tag (@TAGLIST) {
 				$attr = { %$attr, %{+shift} };
 			}
 			my $open = undef;
-			my $close = _escaped(_close_tag($tag), $nl);
+			my $close = _close_tag($tag) . $nl;
 			my @ret = ();
 			foreach my $c (@_) {
 				my $r = ref $c;
@@ -191,7 +191,7 @@ sub _to_html($$$) {
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		my $tag = ${shift @lst};
 		$flags =~ /t/ or croak "tag <$tag> not allowed here";
-		$fun = $CGI::HTML::{"tag_$tag"};
+		$fun = $TAG{$tag};
 		ref $fun eq "CODE" or croak "unknown tag <$tag>";
 	}
 
