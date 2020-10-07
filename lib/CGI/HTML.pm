@@ -91,11 +91,9 @@ our %DEFAULT_ATTR = (
 our %TAG = ();
 
 foreach my $tag (@TAGLIST) {
-	my $fname = "tag_$tag";
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
-	$CGI::HTML::{$fname} and next;
-	if ($EMPTY{$tag}) {
-		my $f = $TAG{$tag} = sub {
+	my $fun = $EMPTY{$tag} ?
+		sub {
 			my $self = shift;
 			my $attr = $DEFAULT_ATTR{$tag} || { };
 			while (ref $_[0] eq "HASH") {
@@ -103,16 +101,8 @@ foreach my $tag (@TAGLIST) {
 			}
 			@_ and croak "no content allowed in <$tag>";
 			_escaped(_open_tag($tag, $attr), $nl)
-		};
-		$CGI::HTML::{$fname} = sub {
-			my $self = shift;
-			my $attr = $DEFAULT_ATTR{$tag} || { };
-			ref $_[0] eq "HASH" and $attr = { %$attr, %{+shift} };
-			@_ and croak "no content allowed in <$tag>";
-			_escaped(_open_tag($tag, $attr), $nl)
-		};
-	} else {
-		my $f = $TAG{$tag} = sub {
+		} :
+		sub {
 			my $self = shift;
 			my $attr = $DEFAULT_ATTR{$tag} || { };
 			while (ref $_[0] eq "HASH") {
@@ -135,6 +125,19 @@ foreach my $tag (@TAGLIST) {
 			@ret or push @ret, _open_tag($tag, $attr), $close;
 			_escaped(@ret)
 		};
+	$TAG{$tag} = $fun;
+	
+	my $fname = "tag_$tag";
+	$CGI::HTML::{$fname} and next;
+	if ($EMPTY{$tag}) {
+		$CGI::HTML::{$fname} = sub {
+			my $self = shift;
+			my $attr = $DEFAULT_ATTR{$tag} || { };
+			ref $_[0] eq "HASH" and $attr = { %$attr, %{+shift} };
+			@_ and croak "no content allowed in <$tag>";
+			_escaped(_open_tag($tag, $attr), $nl)
+		};
+	} else {
 		$CGI::HTML::{$fname} = sub {
 			# warn "CONTENT '$tag'\n";
 			my $self = shift;
