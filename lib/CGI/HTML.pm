@@ -145,7 +145,7 @@ sub _to_html($$;$$) {
 	my ($self, $obj, $allow_attr, $allow_tag) = @_;
 	defined $obj or return wantarray ? () : undef;
 	my $r = ref $obj;
-	$r or return _escaped($obj);
+	$r or return _escape_text($obj);
 	$r eq "CGI::HTML::EscapedString" and return $obj;
 	$r eq "ARRAY" or croak "bad _to_html($r) call";
 
