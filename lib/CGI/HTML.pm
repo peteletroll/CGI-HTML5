@@ -88,11 +88,22 @@ my %NEWLINE = map { $_ => 1 } qw(
 my %DEFAULT_ATTR = (
 );
 
+my %TAG = ();
+
 foreach my $tag (@TAGLIST) {
 	my $fname = "tag_$tag";
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
 	$CGI::HTML::{$fname} and next;
 	if ($EMPTY{$tag}) {
+		my $f = $TAG{$tag} = sub {
+			my $self = shift;
+			my $attr = $DEFAULT_ATTR{$tag} || { };
+			while (ref $_[0] eq "HASH") {
+				$attr = { %$attr, %{+shift} };
+			}
+			@_ and croak "no content allowed in <$tag>";
+			_escaped(_open_tag($tag, $attr), $nl)
+		};
 		$CGI::HTML::{$fname} = sub {
 			my $self = shift;
 			my $attr = $DEFAULT_ATTR{$tag} || { };
@@ -101,6 +112,29 @@ foreach my $tag (@TAGLIST) {
 			_escaped(_open_tag($tag, $attr), $nl)
 		};
 	} else {
+		my $f = $TAG{$tag} = sub {
+			my $self = shift;
+			my $attr = $DEFAULT_ATTR{$tag} || { };
+			while (ref $_[0] eq "HASH") {
+				$attr = { %$attr, %{+shift} };
+			}
+			my $open = undef;
+			my $close = _escaped(_close_tag($tag), $nl);
+			my @ret = ();
+			foreach my $c (@_) {
+				my $r = ref $c;
+				if ($r eq "HASH") {
+					$attr = { %$attr, %$c };
+					$open = undef;
+					next;
+				}
+				$r eq "CGI::HTML::EscapedString" or croak "unsupported reference to $r";
+				$open ||= _open_tag($tag, $attr);
+				push @ret, $open . "$c" . $close;
+			}
+			@ret or push @ret, _open_tag($tag, $attr), $close;
+			_escaped(@ret)
+		};
 		$CGI::HTML::{$fname} = sub {
 			# warn "CONTENT '$tag'\n";
 			my $self = shift;
