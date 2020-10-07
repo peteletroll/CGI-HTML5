@@ -37,7 +37,7 @@ sub literal($@) {
 ### initialization
 
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-my @TAGLIST = qw(
+our @TAGLIST = qw(
 	a abbr address area article aside audio
 	b base bdi bdo blockquote body br button
 	canvas caption cite code col colgroup
@@ -62,7 +62,7 @@ my @TAGLIST = qw(
 );
 
 # from https://developer.mozilla.org/en-US/docs/Glossary/empty_element
-my %EMPTY = map { $_ => 1 } qw(
+our %EMPTY = map { $_ => 1 } qw(
 	area
 	base br
 	col
@@ -77,7 +77,7 @@ my %EMPTY = map { $_ => 1 } qw(
 	wbr
 );
 
-my %NEWLINE = map { $_ => 1 } qw(
+our %NEWLINE = map { $_ => 1 } qw(
 	body
 	div
 	head html
@@ -85,10 +85,10 @@ my %NEWLINE = map { $_ => 1 } qw(
 	table tr
 );
 
-my %DEFAULT_ATTR = (
+our %DEFAULT_ATTR = (
 );
 
-my %TAG = ();
+our %TAG = ();
 
 foreach my $tag (@TAGLIST) {
 	my $fname = "tag_$tag";
