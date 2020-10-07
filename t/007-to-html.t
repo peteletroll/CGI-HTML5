@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 18;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
@@ -12,13 +12,29 @@ ok($Q);
 my $t;
 
 my $s = "Hi & Bye";
-my $es = CGI::HTML::_escape_text($s);
+my $e = CGI::HTML::_escape_text($s);
+my $es = "$e";
 
 is_deeply(scalar $Q->_to_html([ ], ""), "");
 
-is_deeply($Q->_to_html($s, ""), $es);
+is_deeply($Q->_to_html($s, ""), $e);
 
 $t = $Q->literal("<br>", "");
 is_deeply($Q->_to_html($t, ""), $t);
 is_deeply($Q->_to_html([ $t ], ""), $t);
+
+is_deeply($Q->_to_html([ \"b", $s ], "t"), "<b>$es</b>");
+is_deeply($Q->_to_html([ \"b", sub { $s } ], "t"), "<b>$es</b>");
+is_deeply($Q->_to_html([ \"b", [ $s ] ], "t"), "<b>$es</b>");
+is_deeply($Q->_to_html([ \"b", [ sub { $s } ] ], "t"), "<b>$es</b>");
+
+is_deeply($Q->_to_html([ \"b", $s, $s ], "t"), "<b>$es</b>" x 2);
+is_deeply($Q->_to_html([ \"b", sub { ($s, $s) } ], "t"), "<b>$es</b>" x 2);
+is_deeply($Q->_to_html([ \"b", [ $s, $s ] ], "t"), "<b>$es$es</b>");
+is_deeply($Q->_to_html([ \"b", [ sub { ($s, $s) } ] ], "t"), "<b>$es$es</b>");
+
+is_deeply($Q->_to_html([ \"b", [ \"i", $s, $s ] ], "t"), "<b><i>$es</i><i>$es</i></b>");
+is_deeply($Q->_to_html([ \"b", [ \"i", sub { ($s, $s) } ] ], "t"), "<b><i>$es</i><i>$es</i></b>");
+is_deeply($Q->_to_html([ \"b", [ \"i", [ $s, $s ] ] ], "t"), "<b><i>$es$es</i></b>");
+is_deeply($Q->_to_html([ \"b", [ \"i", [ sub { ($s, $s) } ] ] ], "t"), "<b><i>$es$es</i></b>");
 
