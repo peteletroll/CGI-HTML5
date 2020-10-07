@@ -141,8 +141,9 @@ foreach my $tag (@TAG) {
 
 ### main processing
 
-sub _to_html($$;$$) {
-	my ($self, $obj, $allow_attr, $allow_tag) = @_;
+sub _to_html($$$) {
+	@_ == 3 or confess "_to_html() called with ", scalar @_, " parameters instead of 3";
+	my ($self, $obj, $flags) = @_;
 	defined $obj or return wantarray ? () : undef;
 	my $r = ref $obj;
 	$r or return _escape_text($obj);
@@ -155,7 +156,7 @@ sub _to_html($$;$$) {
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		my $tag = ${shift @lst};
-		$allow_tag or croak "tag <$tag> not allowed here";
+		$flags =~ /t/ or croak "tag <$tag> not allowed here";
 		$fun = $CGI::HTML::{"tag_$tag"};
 		ref $fun eq "CODE" or croak "unknown tag <$tag>";
 	}
@@ -169,11 +170,11 @@ sub _to_html($$;$$) {
 			next;
 		}
 		if ($r eq "HASH") {
-			$allow_attr || $fun or croak "attributes not allowed here";
+			$flags =~ /a/ || $fun or croak "attributes not allowed here";
 			push @ret, $elt;
 			next;
 		}
-		push @ret, scalar $self->_to_html($elt, 0, 1);
+		push @ret, scalar $self->_to_html($elt, "t");
 	}
 
 	$fun and return $fun->($self, @ret);
