@@ -159,7 +159,7 @@ sub _to_html($$) {
 		defined $elt or next;
 		my $r = ref $elt;
 		if ($r eq "CODE") {
-			unshift @lst, ($elt->());
+			unshift @lst, ($elt->($self));
 			next;
 		}
 		if ($r eq "HASH") {
