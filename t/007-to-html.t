@@ -48,7 +48,7 @@ $t = [ \"b", "a" ];
 my $ts = $Q->_to_html($t);
 $ts = "$ts";
 is_deeply(scalar $Q->_to_html([ iterator($t, 5) ]), scalar($ts x 5));
-is_deeply([ $Q->_to_html([ \"i", iterator($t, 5) ]) ], [ "<i>$ts</i>" x 5 ]);
+is_deeply([ $Q->_to_html([ \"i", iterator($t, 5) ]) ], [ ("<i>$ts</i>") x 5 ]);
 
 is_deeply(scalar $Q->_to_html([ \"b",
 	{ class => "b" }, "Hi",

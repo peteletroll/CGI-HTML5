@@ -117,10 +117,10 @@ foreach my $tag (@TAGLIST) {
 				}
 				$r eq "CGI::HTML::EscapedString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($tag, $attr);
-				push @ret, $open . "$c" . $close;
+				push @ret, _escaped($open . "$c" . $close);
 			}
 			@ret or push @ret, _open_tag($tag, $attr), $close;
-			_escaped(@ret)
+			wantarray ? @ret : _escaped(@ret)
 		};
 	$TAG{$tag} = $fun;
 
@@ -167,11 +167,11 @@ sub _to_html($$) {
 			push @ret, $elt;
 			next;
 		}
-		push @ret, scalar $self->_to_html($elt);
+		push @ret, $self->_to_html($elt);
 	}
 
 	$fun and return $fun->($self, @ret);
-	wantarray ? @ret : _escaped(join("", @ret))
+	_escaped(join("", @ret))
 }
 
 ### tag utilities
