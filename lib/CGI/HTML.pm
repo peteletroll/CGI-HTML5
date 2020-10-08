@@ -134,54 +134,6 @@ foreach my $tag (@TAGLIST) {
 		my $self = shift;
 		$self->_to_html([ \$tag, @_ ], "t")
 	};
-
-	next;
-
-	if ($EMPTY{$tag}) {
-		$CGI::HTML::{$fname} = sub {
-			my $self = shift;
-			my $attr = $DEFAULT_ATTR{$tag} || { };
-			ref $_[0] eq "HASH" and $attr = { %$attr, %{+shift} };
-			@_ and croak "no content allowed in <$tag>";
-			_escaped(_open_tag($tag, $attr), $nl)
-		};
-	} else {
-		$CGI::HTML::{$fname} = sub {
-			# warn "CONTENT '$tag'\n";
-			my $self = shift;
-			my $attr = $DEFAULT_ATTR{$tag} || { };
-			my $open = undef;
-			my $close = _escaped(_close_tag($tag), $nl);
-			my @ret = ();
-			my @lst = @_;
-			while (@lst) {
-				my $c = shift @lst;
-				defined $c or next;
-				my @c = ();
-				my $r = ref $c;
-				if (!$r) {
-					push @c, _escape_text($c);
-				} elsif ($r eq "CGI::HTML::EscapedString") {
-					push @c, $c;
-				} elsif ($r eq "HASH") {
-					$attr = { %$attr, %$c };
-					$open = undef;
-					next;
-				} elsif ($r eq "ARRAY") {
-					push @c, scalar $self->_process($c);
-				} elsif ($r eq "CODE") {
-					unshift @lst, ($c->());
-					next;
-				} else {
-					croak "unsupported reference to $r";
-				}
-				$open ||= _open_tag($tag, $attr);
-				push @ret, $open, $_, $close foreach @c;
-			}
-			@ret or push @ret, _open_tag($tag, $attr), $close;
-			_escaped(@ret)
-		};
-	}
 }
 
 ### main processing
@@ -223,38 +175,6 @@ sub _to_html($$$) {
 	}
 
 	$fun and return $fun->($self, @ret);
-	wantarray ? @ret : _escaped(join("", @ret))
-}
-
-sub _process($$) {
-	my ($self, $lst) = @_;
-	my @ret = ();
-	if (@$lst > 0 && ref $lst->[0] eq "SCALAR") {
-		my @lst = @$lst;
-		my $tag = ${shift @lst};
-		my $fname = "tag_$tag";
-		my $f = $CGI::HTML::{$fname};
-		ref $f eq "CODE" or croak "unknown tag <$tag>";
-		push @ret, $f->($self, @lst);
-	} else {
-		while (@$lst) {
-			my $c = shift @$lst;
-			defined $c or next;
-			my $r = ref $c;
-			if (!$r) {
-				push @ret, _escape_text($c);
-			} elsif ($r eq "CGI::HTML::EscapedString") {
-				push @ret, $c;
-			} elsif ($r eq "ARRAY") {
-				push @ret, $self->_process($c);
-			} elsif ($r eq "CODE") {
-				unshift @$lst, ($c->());
-				next;
-			} else {
-				croak "unsupported reference to $r";
-			}
-		}
-	}
 	wantarray ? @ret : _escaped(join("", @ret))
 }
 

@@ -11,23 +11,23 @@ ok($Q);
 
 my $t;
 
-$t = $Q->_process([
+$t = $Q->_to_html([
 	\"div",
 	[
 		[ \"b", "Hi" ],
 		" & ",
 		[ \"i", "Bye" ]
 	]
-]);
+], "t");
 isa_ok($t, "CGI::HTML::EscapedString");
-is_deeply($Q->_process([
+is_deeply($Q->_to_html([
 	\"div",
 	[
 		[ \"b", "Hi" ],
 		" & ",
 		[ \"i", "Bye" ]
 	]
-]), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
+], "t"), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
 $t = $Q->tag(
         \"div",
