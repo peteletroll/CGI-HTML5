@@ -171,7 +171,7 @@ sub _to_html($$) {
 	}
 
 	$fun and return $fun->($self, @ret);
-	_escaped(join("", @ret))
+	_escaped(@ret)
 }
 
 ### tag utilities
