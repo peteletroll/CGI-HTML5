@@ -20,23 +20,16 @@ $t = $Q->_to_html([
 	]
 ]);
 isa_ok($t, "CGI::HTML::EscapedString");
-is_deeply($Q->_to_html([
-	\"div",
-	[
-		[ \"b", "Hi" ],
-		" & ",
-		[ \"i", "Bye" ]
-	]
-]), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
+is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
 $t = $Q->tag(
         \"div",
         [
                 [ \"b", "Hi" ],
-                $Q->literal(" &amp; "),
+                $Q->literal(" & "),
                 [ \"i", "Bye" ]
         ]
 );
 isa_ok($t, "CGI::HTML::EscapedString");
-is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
+is_deeply($t, "<div><b>Hi</b> & <i>Bye</i></div>\n");
 
