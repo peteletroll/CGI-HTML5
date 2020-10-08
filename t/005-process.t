@@ -18,7 +18,7 @@ $t = $Q->_to_html([
 		" & ",
 		[ \"i", "Bye" ]
 	]
-], "t");
+]);
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($Q->_to_html([
 	\"div",
@@ -27,7 +27,7 @@ is_deeply($Q->_to_html([
 		" & ",
 		[ \"i", "Bye" ]
 	]
-], "t"), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
+]), "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
 $t = $Q->tag(
         \"div",

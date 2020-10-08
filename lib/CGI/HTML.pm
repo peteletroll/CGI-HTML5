@@ -26,7 +26,7 @@ sub clone($) {
 
 sub tag($@) {
 	my $self = shift;
-	scalar $self->_to_html(\@_, "t")
+	scalar $self->_to_html(\@_)
 }
 
 sub literal($@) {
@@ -132,15 +132,15 @@ foreach my $tag (@TAGLIST) {
 
 	$CGI::HTML::{$fname} = sub {
 		my $self = shift;
-		$self->_to_html([ \$tag, @_ ], "t")
+		$self->_to_html([ \$tag, @_ ])
 	};
 }
 
 ### main processing
 
-sub _to_html($$$) {
-	@_ == 3 or confess "_to_html() called with ", scalar @_, " parameters instead of 3";
-	my ($self, $obj, $flags) = @_;
+sub _to_html($$) {
+	@_ == 2 or confess "_to_html() called with ", scalar @_, " parameters instead of 2";
+	my ($self, $obj) = @_;
 	defined $obj or return wantarray ? () : undef;
 	my $r = ref $obj;
 	$r or return _escape_text($obj);
@@ -153,7 +153,6 @@ sub _to_html($$$) {
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		my $tag = ${shift @lst};
-		$flags =~ /t/ or croak "tag <$tag> not allowed here";
 		$fun = $TAG{$tag};
 		ref $fun eq "CODE" or croak "unknown tag <$tag>";
 	}
@@ -167,11 +166,11 @@ sub _to_html($$$) {
 			next;
 		}
 		if ($r eq "HASH") {
-			$flags =~ /a/ || $fun or croak "attributes not allowed here";
+			$fun or croak "attributes not allowed here";
 			push @ret, $elt;
 			next;
 		}
-		push @ret, scalar $self->_to_html($elt, "t");
+		push @ret, scalar $self->_to_html($elt);
 	}
 
 	$fun and return $fun->($self, @ret);
