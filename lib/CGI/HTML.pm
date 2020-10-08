@@ -26,7 +26,7 @@ sub clone($) {
 
 sub tag($@) {
 	my $self = shift;
-	scalar $self->_process(\@_)
+	scalar $self->_to_html(\@_, "t")
 }
 
 sub literal($@) {
