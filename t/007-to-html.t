@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
@@ -51,4 +51,11 @@ my $ts = $Q->_to_html($t, "t");
 $ts = "$ts";
 is_deeply(scalar $Q->_to_html([ iterator($t, 5) ], ""), scalar($ts x 5));
 is_deeply([ $Q->_to_html([ \"i", iterator($t, 5) ], "t") ], [ "<i>$ts</i>" x 5 ]);
+
+is_deeply(scalar $Q->_to_html(
+	[ \"b",
+		{ class => "b" }, "Hi",
+		{ class => "c" }, "Bye",
+	],
+"t"), "<b class=\"b\">Hi</b><b class=\"c\">Bye</b>");
 
