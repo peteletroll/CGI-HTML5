@@ -126,9 +126,17 @@ foreach my $tag (@TAGLIST) {
 			_escaped(@ret)
 		};
 	$TAG{$tag} = $fun;
-	
+
 	my $fname = "tag_$tag";
 	$CGI::HTML::{$fname} and next;
+
+	$CGI::HTML::{$fname} = sub {
+		my $self = shift;
+		$self->_to_html([ \$tag, @_ ], "t")
+	};
+
+	next;
+
 	if ($EMPTY{$tag}) {
 		$CGI::HTML::{$fname} = sub {
 			my $self = shift;
