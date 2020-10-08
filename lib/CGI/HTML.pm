@@ -105,9 +105,6 @@ foreach my $tag (@TAGLIST) {
 		sub {
 			my $self = shift;
 			my $attr = $DEFAULT_ATTR{$tag} || { };
-			while (ref $_[0] eq "HASH") {
-				$attr = { %$attr, %{+shift} };
-			}
 			my $open = undef;
 			my $close = _close_tag($tag) . $nl;
 			my @ret = ();
