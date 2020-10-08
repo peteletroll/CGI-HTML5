@@ -129,7 +129,7 @@ foreach my $tag (@TAGLIST) {
 
 	$CGI::HTML::{$fname} = sub {
 		my $self = shift;
-		$self->_to_html([ \$tag, @_ ])
+		scalar $self->_to_html([ \$tag, @_ ])
 	};
 }
 
