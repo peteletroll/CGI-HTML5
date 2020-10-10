@@ -17,6 +17,7 @@ sub new($@) {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
+	$new->{__PACKAGE__} = { };
 	return $new;
 }
 
@@ -92,10 +93,10 @@ our %TAG = ();
 
 foreach my $tag (@TAGLIST) {
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
-	my $fun = $EMPTY{$tag} ?
+	$TAG{$tag} = $EMPTY{$tag} ?
 		sub {
 			my $self = shift;
-			my $attr = $DEFAULT_ATTR{$tag} || { };
+			my $attr = _default_attr($tag);
 			while (ref $_[0] eq "HASH") {
 				$attr = { %$attr, %{+shift} };
 			}
@@ -104,7 +105,7 @@ foreach my $tag (@TAGLIST) {
 		} :
 		sub {
 			my $self = shift;
-			my $attr = $DEFAULT_ATTR{$tag} || { };
+			my $attr = _default_attr($tag);
 			my $open = undef;
 			my $close = _close_tag($tag) . $nl;
 			my @ret = ();
@@ -122,15 +123,6 @@ foreach my $tag (@TAGLIST) {
 			@ret or push @ret, _open_tag($tag, $attr), $close;
 			wantarray ? @ret : _escaped(@ret)
 		};
-	$TAG{$tag} = $fun;
-
-	my $fname = "tag_$tag";
-	$CGI::HTML::{$fname} and next;
-
-	$CGI::HTML::{$fname} = sub {
-		my $self = shift;
-		scalar $self->_to_html([ \$tag, @_ ])
-	};
 }
 
 ### main processing
@@ -189,11 +181,18 @@ sub _close_tag($) {
 
 ### attribute utilities
 
+sub _default_attr($) {
+	my ($tag) = @_;
+	my $attr = $DEFAULT_ATTR{$tag};
+	$attr ? { %$attr, -tag => $tag } : { -tag => $tag }
+}
+
 sub _attr($) {
 	my ($a) = @_;
 	$a or return "";
 	my $ret = "";
 	foreach my $n (sort keys %$a) {
+		$n =~ /^-/ and next;
 		my $v = $a->{$n};
 		defined $v or next;
 		$n =~ /[\s<>&'"=\/]/ and croak "unsafe attribute name '$n'";
