@@ -86,9 +86,6 @@ our %NEWLINE = map { $_ => 1 } qw(
 	table tr
 );
 
-our %DEFAULT_ATTR = (
-);
-
 our %ELEMENT = ();
 
 foreach my $elt (@ELEMENTLIST) {
@@ -96,7 +93,7 @@ foreach my $elt (@ELEMENTLIST) {
 	$ELEMENT{$elt} = $EMPTY{$elt} ?
 		sub {
 			my $self = shift;
-			my $attr = _default_attr($elt);
+			my $attr = { -element => $elt };
 			while (ref $_[0] eq "HASH") {
 				$attr = { %$attr, %{+shift} };
 			}
@@ -105,7 +102,7 @@ foreach my $elt (@ELEMENTLIST) {
 		} :
 		sub {
 			my $self = shift;
-			my $attr = _default_attr($elt);
+			my $attr = { -element => $elt };
 			my $open = undef;
 			my $close = _close_tag($elt) . $nl;
 			my @ret = ();
@@ -180,12 +177,6 @@ sub _close_tag($) {
 }
 
 ### attribute utilities
-
-sub _default_attr($) {
-	my ($elt) = @_;
-	my $attr = $DEFAULT_ATTR{$elt};
-	$attr ? { %$attr, -elt => $elt } : { -elt => $elt }
-}
 
 sub _attr($) {
 	my ($a) = @_;
