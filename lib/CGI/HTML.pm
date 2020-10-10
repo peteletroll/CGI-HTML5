@@ -38,7 +38,7 @@ sub literal($@) {
 ### initialization
 
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-our @TAGLIST = qw(
+our @ELEMENTLIST = qw(
 	a abbr address area article aside audio
 	b base bdi bdo blockquote body br button
 	canvas caption cite code col colgroup
@@ -89,11 +89,11 @@ our %NEWLINE = map { $_ => 1 } qw(
 our %DEFAULT_ATTR = (
 );
 
-our %TAG = ();
+our %ELEMENT = ();
 
-foreach my $tag (@TAGLIST) {
+foreach my $tag (@ELEMENTLIST) {
 	my $nl = $NEWLINE{$tag} ? "\n" : "";
-	$TAG{$tag} = $EMPTY{$tag} ?
+	$ELEMENT{$tag} = $EMPTY{$tag} ?
 		sub {
 			my $self = shift;
 			my $attr = _default_attr($tag);
@@ -142,7 +142,7 @@ sub _to_html($$) {
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		my $tag = ${shift @lst};
-		$fun = $TAG{$tag};
+		$fun = $ELEMENT{$tag};
 		ref $fun eq "CODE" or croak "unknown tag <$tag>";
 	}
 
