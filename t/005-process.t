@@ -22,7 +22,7 @@ $t = $Q->_to_html([
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
-$t = $Q->tag(
+$t = $Q->elt(
         \"div",
         [
                 [ \"b", "Hi" ],

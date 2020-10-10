@@ -18,32 +18,32 @@ ok($Q);
 
 my $t;
 
-$t = $Q->tag(\"div");
+$t = $Q->elt(\"div");
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<div></div>\n");
 
-$t = $Q->tag(\"div", "Hi & Bye");
+$t = $Q->elt(\"div", "Hi & Bye");
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<div>Hi &amp; Bye</div>\n");
 
-$t = $Q->tag(\"span", "Hi & Bye");
+$t = $Q->elt(\"span", "Hi & Bye");
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<span>Hi &amp; Bye</span>");
 
-$t = $Q->tag(\"div", $Q->tag(\"span", "Hi & Bye"));
+$t = $Q->elt(\"div", $Q->elt(\"span", "Hi & Bye"));
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<div><span>Hi &amp; Bye</span></div>\n");
 
-$t = $Q->tag(\"span", $Q->tag(\"div", "Hi & Bye"));
+$t = $Q->elt(\"span", $Q->elt(\"div", "Hi & Bye"));
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<span><div>Hi &amp; Bye</div>\n</span>");
 
-$t = $Q->tag(\"div", { class => "c1" }, "Hi",
+$t = $Q->elt(\"div", { class => "c1" }, "Hi",
 	{ class => "c2" }, "Bye");
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<div class=\"c1\">Hi</div>\n<div class=\"c2\">Bye</div>\n");
 
-$t = $Q->tag(\"span", { class => "c1" }, "Hi",
+$t = $Q->elt(\"span", { class => "c1" }, "Hi",
 	{ class => "c2" }, "Bye");
 is_deeply($t, "<span class=\"c1\">Hi</span><span class=\"c2\">Bye</span>");
 

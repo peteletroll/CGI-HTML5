@@ -11,13 +11,13 @@ ok($Q);
 
 my $t;
 
-$t = $Q->tag(
+$t = $Q->elt(
 	[ \"b", sub { map { [ \"i", $_ ] } qw(a b) } ],
 );
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<b><i>a</i></b><b><i>b</i></b>");
 
-$t = $Q->tag(
+$t = $Q->elt(
         sub { map { [ \"i", $_ ] } qw(a b) },
 );
 isa_ok($t, "CGI::HTML::EscapedString");

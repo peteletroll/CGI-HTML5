@@ -25,7 +25,7 @@ sub clone($) {
 	$_[0]->new($_[0]);
 }
 
-sub tag($@) {
+sub elt($@) {
 	my $self = shift;
 	scalar $self->_to_html(\@_)
 }
@@ -91,23 +91,23 @@ our %DEFAULT_ATTR = (
 
 our %ELEMENT = ();
 
-foreach my $tag (@ELEMENTLIST) {
-	my $nl = $NEWLINE{$tag} ? "\n" : "";
-	$ELEMENT{$tag} = $EMPTY{$tag} ?
+foreach my $elt (@ELEMENTLIST) {
+	my $nl = $NEWLINE{$elt} ? "\n" : "";
+	$ELEMENT{$elt} = $EMPTY{$elt} ?
 		sub {
 			my $self = shift;
-			my $attr = _default_attr($tag);
+			my $attr = _default_attr($elt);
 			while (ref $_[0] eq "HASH") {
 				$attr = { %$attr, %{+shift} };
 			}
-			@_ and croak "no content allowed in <$tag>";
-			_escaped(_open_tag($tag, $attr), $nl)
+			@_ and croak "no content allowed in <$elt>";
+			_escaped(_open_tag($elt, $attr), $nl)
 		} :
 		sub {
 			my $self = shift;
-			my $attr = _default_attr($tag);
+			my $attr = _default_attr($elt);
 			my $open = undef;
-			my $close = _close_tag($tag) . $nl;
+			my $close = _close_tag($elt) . $nl;
 			my @ret = ();
 			foreach my $c (@_) {
 				my $r = ref $c;
@@ -117,10 +117,10 @@ foreach my $tag (@ELEMENTLIST) {
 					next;
 				}
 				$r eq "CGI::HTML::EscapedString" or croak "unsupported reference to $r";
-				$open ||= _open_tag($tag, $attr);
+				$open ||= _open_tag($elt, $attr);
 				push @ret, _escaped($open . "$c" . $close);
 			}
-			@ret or push @ret, _open_tag($tag, $attr), $close;
+			@ret or push @ret, _open_tag($elt, $attr), $close;
 			wantarray ? @ret : _escaped(@ret)
 		};
 }
@@ -141,9 +141,9 @@ sub _to_html($$) {
 	my @ret = ();
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
-		my $tag = ${shift @lst};
-		$fun = $ELEMENT{$tag};
-		ref $fun eq "CODE" or croak "unknown tag <$tag>";
+		my $elt = ${shift @lst};
+		$fun = $ELEMENT{$elt};
+		ref $fun eq "CODE" or croak "unknown elt <$elt>";
 	}
 
 	while (@lst) {
@@ -182,9 +182,9 @@ sub _close_tag($) {
 ### attribute utilities
 
 sub _default_attr($) {
-	my ($tag) = @_;
-	my $attr = $DEFAULT_ATTR{$tag};
-	$attr ? { %$attr, -tag => $tag } : { -tag => $tag }
+	my ($elt) = @_;
+	my $attr = $DEFAULT_ATTR{$elt};
+	$attr ? { %$attr, -elt => $elt } : { -elt => $elt }
 }
 
 sub _attr($) {

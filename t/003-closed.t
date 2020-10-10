@@ -11,15 +11,15 @@ ok($Q);
 
 my $t;
 
-$t = $Q->tag(\"br");
+$t = $Q->elt(\"br");
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<br>");
 
-$t = $Q->tag(\"img", { src => "z" });
+$t = $Q->elt(\"img", { src => "z" });
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<img src=\"z\">");
 
-$t = $Q->tag(\"input", { type => "checkbox" }, { checked => "checked", other => undef });
+$t = $Q->elt(\"input", { type => "checkbox" }, { checked => "checked", other => undef });
 isa_ok($t, "CGI::HTML::EscapedString");
 is_deeply($t, "<input checked type=\"checkbox\">");
 
