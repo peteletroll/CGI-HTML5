@@ -93,7 +93,7 @@ foreach my $elt (@ELEMENTLIST) {
 	$ELEMENT{$elt} = $EMPTY{$elt} ?
 		sub {
 			my $self = shift;
-			my $attr = { -element => $elt };
+			my $attr = { };
 			while (ref $_[0] eq "HASH") {
 				$attr = { %$attr, %{+shift} };
 			}
@@ -102,7 +102,7 @@ foreach my $elt (@ELEMENTLIST) {
 		} :
 		sub {
 			my $self = shift;
-			my $attr = { -element => $elt };
+			my $attr = { };
 			my $open = undef;
 			my $close = _close_tag($elt) . $nl;
 			my @ret = ();
@@ -133,30 +133,31 @@ sub _to_html($$) {
 	$r eq "CGI::HTML::EscapedString" and return $obj;
 	$r eq "ARRAY" or croak "bad _to_html($r) call";
 
+	my $elt = undef;
 	my $fun = undef;
 	my @lst = @$obj;
 	my @ret = ();
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
-		my $elt = ${shift @lst};
+		$elt = ${shift @lst};
 		$fun = $ELEMENT{$elt};
-		ref $fun eq "CODE" or croak "unknown elt <$elt>";
+		ref $fun eq "CODE" or croak "unknown element <$elt>";
 	}
 
 	while (@lst) {
-		my $elt = shift @lst;
-		defined $elt or next;
-		my $r = ref $elt;
+		my $c = shift @lst;
+		defined $c or next;
+		my $r = ref $c;
 		if ($r eq "CODE") {
-			unshift @lst, ($elt->($self));
+			unshift @lst, ($c->($self, $elt));
 			next;
 		}
 		if ($r eq "HASH") {
 			$fun or croak "attributes not allowed here";
-			push @ret, $elt;
+			push @ret, $c;
 			next;
 		}
-		push @ret, $self->_to_html($elt);
+		push @ret, $self->_to_html($c);
 	}
 
 	$fun and return $fun->($self, @ret);
