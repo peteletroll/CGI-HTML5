@@ -95,7 +95,7 @@ foreach my $elt (@ELEMENTLIST) {
 			my $self = shift;
 			my $attr = { };
 			while (ref $_[0] eq "HASH") {
-				$attr = { %$attr, %{+shift} };
+				$attr = shift;
 			}
 			@_ and croak "no content allowed in <$elt>";
 			_escaped(_open_tag($elt, $attr), $nl)
@@ -109,7 +109,7 @@ foreach my $elt (@ELEMENTLIST) {
 			foreach my $c (@_) {
 				my $r = ref $c;
 				if ($r eq "HASH") {
-					$attr = { %$attr, %$c };
+					$attr = $c;
 					$open = undef;
 					next;
 				}
@@ -135,6 +135,7 @@ sub _to_html($$) {
 
 	my $elt = undef;
 	my $fun = undef;
+	my $attr = undef;
 	my @lst = @$obj;
 	my @ret = ();
 
@@ -149,12 +150,13 @@ sub _to_html($$) {
 		defined $c or next;
 		my $r = ref $c;
 		if ($r eq "CODE") {
-			unshift @lst, ($c->($self, $elt));
+			unshift @lst, ($c->($self, $elt, $attr));
 			next;
 		}
 		if ($r eq "HASH") {
 			$fun or croak "attributes not allowed here";
-			push @ret, $c;
+			$attr = $attr ? { %$attr, %$c } : $c;
+			push @ret, $attr;
 			next;
 		}
 		push @ret, $self->_to_html($c);
