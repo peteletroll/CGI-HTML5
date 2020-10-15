@@ -49,7 +49,7 @@ our %INPUT_TEXT_LIKE = map { $_ => 1 } qw(
 	week
 );
 
-our %INPUT_CHECKBOX_LIKE = map { $_ => 1 } qw(
+our %INPUT_CHECKABLE = map { $_ => 1 } qw(
 	checkbox
 	radio
 );
@@ -67,7 +67,7 @@ sub value($$) {
 			if ($INPUT_TEXT_LIKE{$type}) {
 				my $value = $self->_get_value($name, $default, 1);
 				$ret = { type => $type, value => $value };
-			} elsif ($INPUT_CHECKBOX_LIKE{$type}) {
+			} elsif ($INPUT_CHECKABLE{$type}) {
 				$ret = {
 					value => $default,
 					checked => ($Q->_has_value($name, $default, 1) ? "checked" : undef)
