@@ -60,13 +60,13 @@ sub value($$) {
 			my $type = $attr->{type};
 			defined $type or $type = "text";
 			if ($INPUT_TEXT_LIKE{$type}) {
-				my $value = $self->_pop_param($name, $default);
+				my $value = $self->_get_value($name, $default, 1);
 				return { type => $type, value => $value };
 			} else {
 				croak "<$tag type=\"$type\"> not supported";
 			}
 		} elsif ($tag eq "textarea") {
-			my $value = $self->_pop_param($name, $default);
+			my $value = $self->_get_value($name, $default, 1);
 			return _escape_text($value);
 		} else {
 			croak "value not allowed in <$tag>";
@@ -92,29 +92,23 @@ sub _has_param($$) {
 	exists $s->{$param}
 }
 
-sub _has_value($$$) {
-	my ($self, $param, $value) = @_;
+sub _has_value($$$;$) {
+	my ($self, $param, $value, $remove) = @_;
 	my $s = $self->{+__PACKAGE__}{form_state};
 	my $values = $s->{$param} or return 0;
-	foreach my $v (@$values) {
-		$v eq $value and return 1;
-	}
-	return 0;
+	my $found = grep { $_ eq $value } @$values;
+	if ($found && $remove) {
+		my $count = 0;
+		@$values = map { $_ eq $value ? ($count++ ? ($_) : ()) : ($_) } @$values;
+	};
+	return $found;
 }
 
-
-sub _peek_param($$;$) {
-	my ($self, $param, $default) = @_;
+sub _get_value($$;$$) {
+	my ($self, $param, $default, $remove) = @_;
 	my $s = $self->{+__PACKAGE__}{form_state};
-	my $v = $s->{$param} or return $default;
-	@$v ? $v->[0] : $default
-}
-
-sub _pop_param($$;$) {
-	my ($self, $param, $default) = @_;
-	my $s = $self->{+__PACKAGE__}{form_state};
-	my $v = $s->{$param} or return undef;
-	@$v ? shift @$v : $default
+	my $values = $s->{$param} or return undef;
+	@$values ? ($remove ? shift @$values : $values->[0]) : $default
 }
 
 ### initialization

@@ -14,13 +14,13 @@ ok($Q->_has_param("a"));
 ok($Q->_has_param("b"));
 ok(!$Q->_has_param("c"));
 
-is($Q->_peek_param("a"), "a1");
-is($Q->_peek_param("a"), "a1");
+is($Q->_get_value("a"), "a1");
+is($Q->_get_value("a"), "a1");
 
-is($Q->_pop_param("b"), "b1");
-is($Q->_peek_param("b"), "b2");
-is($Q->_pop_param("b"), "b2");
-is($Q->_peek_param("b"), undef);
+is($Q->_get_value("b", "", 1), "b1");
+is($Q->_get_value("b"), "b2");
+is($Q->_get_value("b", "", 1), "b2");
+is($Q->_get_value("b"), undef);
 
 is_deeply($Q->elt(\"input", { name => "a" }, $Q->value("default")),
 	"<input name=\"a\" type=\"text\" value=\"a1\">");
