@@ -54,6 +54,9 @@ sub value($$) {
 			} else {
 				croak "<$tag type=\"$type\"> not supported";
 			}
+		} elsif ($tag eq "textarea") {
+			my $value = $self->_pop_param($name, $default);
+			return _escape_text($value);
 		} else {
 			croak "value not allowed in <$tag>";
 		}
