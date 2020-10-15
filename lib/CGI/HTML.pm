@@ -49,19 +49,29 @@ our %INPUT_TEXT_LIKE = map { $_ => 1 } qw(
 	week
 );
 
+our %INPUT_CHECKBOX_LIKE = map { $_ => 1 } qw(
+	checkbox
+	radio
+);
+
 sub value($$) {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
 	sub {
 		my ($Q, $tag, $attr) = @_;
-		my $ret = { };
+		my $ret = undef;
 		my $name = $attr->{name} or croak "<$tag> needs name attribute";
 		if ($tag eq "input") {
 			my $type = $attr->{type};
 			defined $type or $type = "text";
 			if ($INPUT_TEXT_LIKE{$type}) {
 				my $value = $self->_get_value($name, $default, 1);
-				return { type => $type, value => $value };
+				$ret = { type => $type, value => $value };
+			} elsif ($INPUT_CHECKBOX_LIKE{$type}) {
+				$ret = {
+					value => $default,
+					checked => ($Q->_has_value($name, $default, 1) ? "checked" : undef)
+				};
 			} else {
 				croak "<$tag type=\"$type\"> not supported";
 			}
