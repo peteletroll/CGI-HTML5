@@ -11,3 +11,4 @@ t/004-content.t
 t/005-process.t
 t/006-process-sub.t
 t/007-to-html.t
+t/008-forms.t

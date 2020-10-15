@@ -17,7 +17,8 @@ sub new($@) {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
-	$new->{__PACKAGE__} = { };
+	$new->{+__PACKAGE__} = { };
+	$new->_reset_form_state();
 	return $new;
 }
 
@@ -33,6 +34,51 @@ sub elt($@) {
 sub literal($@) {
 	my $self = shift;
 	_escaped(@_)
+}
+
+### form helpers
+
+sub value($) {
+	my ($default) = @_;
+	sub {
+		my ($Q, $tag, $attr) = @_;
+		if ($tag eq "input") {
+			my $type = $attr && $attr->{type};
+		} else {
+			croak __PACKAGE__, "::value() doesn't work in <$tag>";
+		}
+	}
+}
+
+sub _reset_form_state($) {
+	my ($self) = @_;
+	my $s = { };
+	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
+	foreach my $p ($self->param()) {
+		$s->{$p} = [ $self->param($p) ];
+	}
+	$self->{+__PACKAGE__}{form_state} = $s;
+	$self
+}
+
+sub _has_param($$) {
+	my ($self, $param) = @_;
+	my $s = $self->{+__PACKAGE__}{form_state};
+	exists $s->{$param}
+}
+
+sub _peek_param($$) {
+	my ($self, $param) = @_;
+	my $s = $self->{+__PACKAGE__}{form_state};
+	my $v = $s->{$param} or return undef;
+	$v->[0]
+}
+
+sub _pop_param($$) {
+	my ($self, $param) = @_;
+	my $s = $self->{+__PACKAGE__}{form_state};
+	my $v = $s->{$param} or return undef;
+	shift @$v
 }
 
 ### initialization
