@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 24;
 BEGIN { use_ok('CGI::HTML') };
 
 #########################
@@ -46,4 +46,13 @@ is_deeply($Q->elt(\"input", { name => "a", type => "checkbox" }, $Q->value("a2")
 	"<input checked name=\"a\" type=\"checkbox\" value=\"a2\">");
 is_deeply($Q->elt(\"input", { name => "a", type => "checkbox" }, $Q->value("a2")),
 	"<input name=\"a\" type=\"checkbox\" value=\"a2\">");
+
+$Q->param(c => "c1", "c1");
+$Q->reset_form();
+is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")),
+	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
+is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")),
+	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
+is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")),
+	"<input name=\"c\" type=\"checkbox\" value=\"c1\">");
 
