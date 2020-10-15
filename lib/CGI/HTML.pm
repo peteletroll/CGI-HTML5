@@ -38,6 +38,17 @@ sub literal($@) {
 
 ### form helpers
 
+our %INPUT_TEXT_LIKE = map { $_ => 1 } qw(
+	date datetime-local
+	email
+	month
+	number
+	search
+	tel text time
+	url
+	week
+);
+
 sub value($$) {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
@@ -48,7 +59,7 @@ sub value($$) {
 		if ($tag eq "input") {
 			my $type = $attr->{type};
 			defined $type or $type = "text";
-			if ($type eq "text") {
+			if ($INPUT_TEXT_LIKE{$type}) {
 				my $value = $self->_pop_param($name, $default);
 				return { type => $type, value => $value };
 			} else {
