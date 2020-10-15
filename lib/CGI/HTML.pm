@@ -18,7 +18,7 @@ sub new($@) {
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
 	$new->{+__PACKAGE__} = { };
-	$new->_reset_form_state();
+	$new->reset_form();
 	return $new;
 }
 
@@ -38,19 +38,30 @@ sub literal($@) {
 
 ### form helpers
 
-sub value($) {
-	my ($default) = @_;
+sub value($$) {
+	my ($self, $default) = @_;
+	defined $default or $default = "";
 	sub {
 		my ($Q, $tag, $attr) = @_;
+		my $ret = { };
+		my $name = $attr->{name} or croak "<$tag> needs name attribute";
 		if ($tag eq "input") {
-			my $type = $attr && $attr->{type};
+			my $type = $attr->{type};
+			defined $type or $type = "text";
+			if ($type eq "text") {
+				my $value = $self->_pop_param($name, $default);
+				return { type => $type, value => $value };
+			} else {
+				croak "<$tag type=\"$type\"> not supported";
+			}
 		} else {
-			croak __PACKAGE__, "::value() doesn't work in <$tag>";
+			croak "value not allowed in <$tag>";
 		}
+		$ret
 	}
 }
 
-sub _reset_form_state($) {
+sub reset_form($) {
 	my ($self) = @_;
 	my $s = { };
 	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
@@ -67,18 +78,29 @@ sub _has_param($$) {
 	exists $s->{$param}
 }
 
-sub _peek_param($$) {
-	my ($self, $param) = @_;
+sub _has_value($$$) {
+	my ($self, $param, $value) = @_;
 	my $s = $self->{+__PACKAGE__}{form_state};
-	my $v = $s->{$param} or return undef;
-	$v->[0]
+	my $values = $s->{$param} or return 0;
+	foreach my $v (@$values) {
+		$v eq $value and return 1;
+	}
+	return 0;
 }
 
-sub _pop_param($$) {
-	my ($self, $param) = @_;
+
+sub _peek_param($$;$) {
+	my ($self, $param, $default) = @_;
+	my $s = $self->{+__PACKAGE__}{form_state};
+	my $v = $s->{$param} or return $default;
+	@$v ? $v->[0] : $default
+}
+
+sub _pop_param($$;$) {
+	my ($self, $param, $default) = @_;
 	my $s = $self->{+__PACKAGE__}{form_state};
 	my $v = $s->{$param} or return undef;
-	shift @$v
+	@$v ? shift @$v : $default
 }
 
 ### initialization
