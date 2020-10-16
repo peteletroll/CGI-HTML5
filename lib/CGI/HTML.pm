@@ -73,7 +73,7 @@ sub value($$) {
 					checked => ($Q->_has_value($name, $default, 1) ? "checked" : undef)
 				};
 			} else {
-				croak "<$tag type=\"$type\"> not supported";
+				croak "value not allowed in <$tag type=\"$type\">";
 			}
 		} elsif ($tag eq "textarea") {
 			my $value = $self->_get_value($name, $default, 1);
@@ -83,6 +83,53 @@ sub value($$) {
 		}
 		$ret
 	}
+}
+
+sub options($@) {
+	my $self = shift;
+	my %label = ();
+	my @lst = ();
+	foreach my $c (@_) {
+		defined $c or next;
+		my $r = ref $c;
+		if (!$r || $r eq "ARRAY") {
+			push @lst, $c;
+		} elsif ($r eq "HASH") {
+			%label = (%label, %$c);
+		} else {
+			croak "$r not allowed in options";
+		}
+	}
+	sub {
+		my ($Q, $tag, $attr) = @_;
+		my @opt = ();
+		if ($tag eq "select" || $tag eq "datalist") {
+			my $name = $attr->{name} or croak "<$tag> needs name attribute";
+			foreach my $c (@lst) {
+				my $r = ref $c;
+				if ($r eq "ARRAY") {
+					push @opt, $self->_options_aux($name, $c, \%label);
+				} else {
+					croak "unallowed yet";
+				}
+			}
+		} else {
+			croak "options not allowed in <$tag>";
+		}
+		\@opt
+	}
+}
+
+sub _options_aux($$$) {
+	my ($self, $name, $lst, $lbl) = @_;
+	my @ret = ();
+	foreach my $value (@$lst) {
+		my $label = $lbl->{$value};
+		defined $label or $label = $value;
+		my $selected = $self->_has_value($name, $value, 1) ? "selected" : undef;
+		push @ret, [ \"option", { value => $value, selected => $selected }, $label ];
+	}
+	@ret
 }
 
 sub reset_form($) {
@@ -168,6 +215,7 @@ our %NEWLINE = map { $_ => 1 } qw(
 	body
 	div
 	head html
+	option optgroup
 	p
 	table tr
 );
