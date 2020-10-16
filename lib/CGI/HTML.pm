@@ -103,14 +103,22 @@ sub options($@) {
 	sub {
 		my ($Q, $tag, $attr) = @_;
 		my @opt = ();
+		my $optgroup = "";
 		if ($tag eq "select" || $tag eq "datalist") {
 			my $name = $attr->{name} or croak "<$tag> needs name attribute";
 			foreach my $c (@lst) {
 				my $r = ref $c;
-				if ($r eq "ARRAY") {
-					push @opt, $self->_options_aux($name, $c, \%label);
+				if (!$r) {
+					$tag eq "select" or croak "<optgroup> not allowed in <$tag>";
+					$optgroup = $c;
+				} elsif ($r eq "ARRAY") {
+					my $o = [ $self->_options_aux($name, $c, \%label) ];
+					if ($optgroup ne "") {
+						$o = [ \"optgroup", { label => $optgroup }, $o ];
+					}
+					push @opt, $o;
 				} else {
-					croak "unallowed yet";
+					croak "$r not allowed in options";
 				}
 			}
 		} else {
