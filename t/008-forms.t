@@ -2,12 +2,12 @@ use strict;
 use warnings;
 
 use Test::More tests => 25;
-BEGIN { use_ok('CGI::HTML') };
+BEGIN { use_ok('CGI::HTML5') };
 
 #########################
 
 my $query = "a=a1;a=a2;b=b1;b=b2";
-my $Q = CGI::HTML->new($query);
+my $Q = CGI::HTML5->new($query);
 ok($Q);
 
 ok($Q->_has_param("a"));

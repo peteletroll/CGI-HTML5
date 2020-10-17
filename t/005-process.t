@@ -2,11 +2,11 @@ use strict;
 use warnings;
 
 use Test::More tests => 6;
-BEGIN { use_ok('CGI::HTML') };
+BEGIN { use_ok('CGI::HTML5') };
 
 #########################
 
-my $Q = CGI::HTML->new();
+my $Q = CGI::HTML5->new();
 ok($Q);
 
 my $t;
@@ -19,7 +19,7 @@ $t = $Q->_to_html([
 		[ \"i", "Bye" ]
 	]
 ]);
-isa_ok($t, "CGI::HTML::EscapedString");
+isa_ok($t, "CGI::HTML5::EscapedString");
 is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
 $t = $Q->elt(
@@ -30,6 +30,6 @@ $t = $Q->elt(
                 [ \"i", "Bye" ]
         ]
 );
-isa_ok($t, "CGI::HTML::EscapedString");
+isa_ok($t, "CGI::HTML5::EscapedString");
 is_deeply($t, "<div><b>Hi</b> & <i>Bye</i></div>\n");
 

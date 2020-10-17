@@ -2,11 +2,11 @@ use strict;
 use warnings;
 
 use Test::More tests => 22;
-BEGIN { use_ok('CGI::HTML') };
+BEGIN { use_ok('CGI::HTML5') };
 
 #########################
 
-my $Q = CGI::HTML->new();
+my $Q = CGI::HTML5->new();
 ok($Q);
 
 is_deeply(scalar $Q->_to_html([ ]), "");
@@ -16,7 +16,7 @@ is_deeply($Q->_to_html($t), $t);
 is_deeply($Q->_to_html([ $t ]), $t);
 
 my $s = "Hi & Bye";
-my $e = CGI::HTML::_escape_text($s);
+my $e = CGI::HTML5::_escape_text($s);
 my $es = "$e";
 
 is_deeply($Q->_to_html($s), $e);

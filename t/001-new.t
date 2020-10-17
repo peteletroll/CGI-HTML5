@@ -2,11 +2,11 @@ use strict;
 use warnings;
 
 use Test::More tests => 11;
-BEGIN { use_ok('CGI::HTML') };
+BEGIN { use_ok('CGI::HTML5') };
 
 #########################
 
-my $Q = CGI::HTML->new("a=a-val&b=b-val&c=c-val-1&c=c-val-2");
+my $Q = CGI::HTML5->new("a=a-val&b=b-val&c=c-val-1&c=c-val-2");
 ok($Q);
 
 my $QQ = $Q->clone();

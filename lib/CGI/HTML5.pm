@@ -1,4 +1,4 @@
-package CGI::HTML;
+package CGI::HTML5;
 
 use 5.028001;
 use strict;
@@ -270,7 +270,7 @@ foreach my $elt (@ELEMENTLIST) {
 					$open = undef;
 					next;
 				}
-				$r eq "CGI::HTML::EscapedString" or croak "unsupported reference to $r";
+				$r eq "CGI::HTML5::EscapedString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
 				push @ret, _escaped($open . "$c" . $close);
 			}
@@ -282,13 +282,13 @@ foreach my $elt (@ELEMENTLIST) {
 ### main processing
 
 {
-	package CGI::HTML::Guard;
+	package CGI::HTML5::Guard;
 	sub DESTROY { $_[0]->() }
 }
 
 sub _guard(&) {
 	defined wantarray or die "_guard() in void context";
-	bless $_[0], "CGI::HTML::Guard"
+	bless $_[0], "CGI::HTML5::Guard"
 }
 
 sub _push_tag($@) {
@@ -306,7 +306,7 @@ sub _to_html($$) {
 	defined $obj or return wantarray ? () : undef;
 	my $r = ref $obj;
 	$r or return _escape_text($obj);
-	$r eq "CGI::HTML::EscapedString" and return $obj;
+	$r eq "CGI::HTML5::EscapedString" and return $obj;
 	$r eq "ARRAY" or croak "bad _to_html($r) call";
 
 	my $elt = undef;
@@ -376,13 +376,13 @@ our %ENT = (
 );
 
 {
-	package CGI::HTML::EscapedString;
+	package CGI::HTML5::EscapedString;
 	use overload '""' => sub { ${$_[0]} },
 		fallback => 0;
 }
 
 sub _escaped(@) {
-	bless \(join "", @_), "CGI::HTML::EscapedString"
+	bless \(join "", @_), "CGI::HTML5::EscapedString"
 }
 
 sub _escape_text($) {
@@ -403,16 +403,16 @@ __END__
 
 =head1 NAME
 
-CGI::HTML - Perl extension for blah blah blah
+CGI::HTML5 - Perl extension for blah blah blah
 
 =head1 SYNOPSIS
 
-  use CGI::HTML;
+  use CGI::HTML5;
   blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for CGI::HTML, created by h2xs. It looks like the
+Stub documentation for CGI::HTML5, created by h2xs. It looks like the
 author of the extension was negligent enough to leave the stub
 unedited.
 
