@@ -148,19 +148,19 @@ sub reset_form($) {
 	foreach my $p ($self->param()) {
 		$s->{$p} = [ $self->param($p) ];
 	}
-	$self->_form_state($s);
+	$self->_extra("state", $s);
 	$self
 }
 
 sub _has_param($$) {
 	my ($self, $param) = @_;
-	my $s = $self->_form_state();
+	my $s = $self->_extra("state");
 	exists $s->{$param}
 }
 
 sub _has_value($$$;$) {
 	my ($self, $param, $value, $remove) = @_;
-	my $s = $self->_form_state();
+	my $s = $self->_extra("state");
 	my $values = $s->{$param} or return 0;
 	my $found = grep { $_ eq $value } @$values;
 	if ($found && $remove) {
@@ -172,18 +172,9 @@ sub _has_value($$$;$) {
 
 sub _get_value($$;$$) {
 	my ($self, $param, $default, $remove) = @_;
-	my $s = $self->_form_state();
+	my $s = $self->_extra("state");
 	my $values = $s->{$param} or return undef;
 	@$values ? ($remove ? shift @$values : $values->[0]) : $default
-}
-
-sub _form_state($;$) {
-	my ($self, $value) = @_;
-	if (@_ > 1) {
-		ref $value eq "HASH" or die "bad _form_state($value)";
-		return $self->_extra("form_state", $value);
-	}
-	$self->_extra("form_state")
 }
 
 sub _extra($$;$) {
