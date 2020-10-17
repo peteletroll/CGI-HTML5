@@ -27,6 +27,10 @@ sub clone($) {
 	$_[0]->new($_[0]);
 }
 
+sub doctype($) {
+	_escaped("<!doctype html>")
+}
+
 sub elt($@) {
 	my $self = shift;
 	scalar $self->_to_html(\@_)
