@@ -346,18 +346,9 @@ sub _to_html($$) {
 
 ### tag utilities
 
-sub _open_tag($$) {
-	my ($t, $a) = @_;
-	$a = _attr($a);
-	"<$t$a>"
-}
+sub _open_tag($$) { "<$_[0]" . _attr($_[1]) . ">" }
 
-sub _close_tag($) {
-	my ($t) = @_;
-	"</$t>"
-}
-
-### attribute utilities
+sub _close_tag($) { "</$_[0]>" }
 
 sub _attr($) {
 	my ($a) = @_;
