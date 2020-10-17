@@ -59,7 +59,9 @@ sub value($$) {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
 	sub {
-		my ($Q, $elt, $attr) = @_;
+		my ($Q) = @_;
+		my $elt = $Q->curelt();
+		my $attr = $Q->curattr();
 		my $ret = undef;
 		my $name = $attr->{name} or croak "<$elt> needs name attribute";
 		if ($elt eq "input") {
@@ -102,7 +104,9 @@ sub options($@) {
 		}
 	}
 	sub {
-		my ($Q, $elt, $attr) = @_;
+		my ($Q) = @_;
+		my $elt = $Q->curelt();
+		my $attr = $Q->curattr();
 		my @option = ();
 		my $optgroup = "";
 		if ($elt eq "select" || $elt eq "datalist") {
@@ -330,7 +334,7 @@ sub _to_html($$) {
 		defined $c or next;
 		my $r = ref $c;
 		if ($r eq "CODE") {
-			unshift @lst, ($c->($self, $elt, $attr));
+			unshift @lst, ($c->($self));
 			next;
 		}
 		if ($r eq "HASH") {
