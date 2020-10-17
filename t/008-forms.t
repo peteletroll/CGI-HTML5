@@ -57,7 +57,12 @@ is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")
 	"<input name=\"c\" type=\"checkbox\" value=\"c1\">");
 
 $Q->reset_form();
-is_deeply($Q->elt(\"select", { name => "a" }, $Q->options("grp", [ "a1" ], "", [ "a2", "a3" ], { a1 => "Hi&Bye" })),
+is_deeply($Q->elt(\"select", { name => "a" }, [
+		[ \"optgroup", { label => "grp" },
+			[ \"option", { value => "a1" }, $Q->value("a1"), "Hi&Bye" ] ],
+		[ \"option", $Q->value("a2"), "a2" ],
+		[ \"option", $Q->value("a3"), "a3" ]
+	]),
 	"<select name=\"a\"><optgroup label=\"grp\"><option selected value=\"a1\">Hi&amp;Bye</option>\n"
 	. "</optgroup>\n"
 	. "<option selected value=\"a2\">a2</option>\n"

@@ -63,8 +63,8 @@ sub value($$) {
 		my $elt = $Q->curelt();
 		my $attr = $Q->curattr();
 		my $ret = undef;
-		my $name = $attr->{name} or croak "<$elt> needs name attribute";
 		if ($elt eq "input") {
+			my $name = $attr->{name} or croak "<$elt> needs name attribute";
 			my $type = $attr->{type};
 			defined $type or $type = "text";
 			if ($INPUT_TEXT_LIKE{$type}) {
@@ -79,70 +79,19 @@ sub value($$) {
 				croak "value not allowed in <$elt type=\"$type\">";
 			}
 		} elsif ($elt eq "textarea") {
+			my $name = $attr->{name} or croak "<$elt> needs name attribute";
 			my $value = $self->_get_value($name, $default, 1);
-			return _escape_text($value);
+			$ret = _escape_text($value);
+		} elsif ($elt eq "option") {
+			my $name = $Q->curattr("select")->{name};
+			defined $name or croak "<$elt> needs outer <select> name attribute";
+			my $selected = $self->_has_value($name, $default, 1) ? "selected" : undef;
+			$ret = { value => $default, selected => $selected };
 		} else {
 			croak "value not allowed in <$elt>";
 		}
 		$ret
 	}
-}
-
-sub options($@) {
-	my $self = shift;
-	my %label = ();
-	my @lst = ();
-	foreach my $c (@_) {
-		defined $c or next;
-		my $r = ref $c;
-		if (!$r || $r eq "ARRAY") {
-			push @lst, $c;
-		} elsif ($r eq "HASH") {
-			%label = (%label, %$c);
-		} else {
-			croak "$r not allowed in options";
-		}
-	}
-	sub {
-		my ($Q) = @_;
-		my $elt = $Q->curelt();
-		my $attr = $Q->curattr();
-		my @option = ();
-		my $optgroup = "";
-		if ($elt eq "select" || $elt eq "datalist") {
-			my $name = $attr->{name} or croak "<$elt> needs name attribute";
-			foreach my $c (@lst) {
-				my $r = ref $c;
-				if (!$r) {
-					$elt eq "select" or croak "<optgroup> not allowed in <$elt>";
-					$optgroup = $c;
-				} elsif ($r eq "ARRAY") {
-					my $o = [ $self->_options_aux($name, $c, \%label) ];
-					if ($optgroup ne "") {
-						$o = [ \"optgroup", { label => $optgroup }, $o ];
-					}
-					push @option, $o;
-				} else {
-					croak "$r not allowed in options";
-				}
-			}
-		} else {
-			croak "options not allowed in <$elt>";
-		}
-		\@option
-	}
-}
-
-sub _options_aux($$$) {
-	my ($self, $name, $lst, $lbl) = @_;
-	my @ret = ();
-	foreach my $value (@$lst) {
-		my $label = $lbl->{$value};
-		defined $label or $label = $value;
-		my $selected = $self->_has_value($name, $value, 1) ? "selected" : undef;
-		push @ret, [ \"option", { value => $value, selected => $selected }, $label ];
-	}
-	@ret
 }
 
 sub reset_form($) {
