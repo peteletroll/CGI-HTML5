@@ -294,10 +294,10 @@ sub _guard(&) {
 sub _push_tag($@) {
 	my $self = shift;
 	my $n = @_;
+	$n > 0 or return undef;
 	my $s = $self->_extra("tag_stack");
 	push @$s, @_;
-	use Data::Dump qw(dump);
-	_guard { splice @$s, -$n if $n > 0 }
+	_guard { splice @$s, -$n }
 }
 
 sub _to_html($$) {
