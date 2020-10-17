@@ -152,6 +152,14 @@ sub reset_form($) {
 	$self
 }
 
+sub curelt($;$) {
+	$_[0]->_extra("stack")->[-2 - 2 * ($_[1] || 0)] || ""
+}
+
+sub curattr($;$) {
+	$_[0]->_extra("stack")->[-1 - 2 * ($_[1] || 0)]
+}
+
 sub _has_param($$) {
 	my ($self, $param) = @_;
 	my $s = $self->_extra("state");
@@ -393,6 +401,7 @@ sub _escape_attr($) {
 }
 
 1;
+
 __END__
 
 =head1 NAME
