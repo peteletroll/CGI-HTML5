@@ -18,7 +18,7 @@ sub new($@) {
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
 	$new->{+__PACKAGE__} = { };
-	$new->_extra(tag_stack => [ ]);
+	$new->_extra("stack", [ ]);
 	$new->reset_form();
 	return $new;
 }
@@ -59,10 +59,10 @@ sub value($$) {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
 	sub {
-		my ($Q, $tag, $attr) = @_;
+		my ($Q, $elt, $attr) = @_;
 		my $ret = undef;
-		my $name = $attr->{name} or croak "<$tag> needs name attribute";
-		if ($tag eq "input") {
+		my $name = $attr->{name} or croak "<$elt> needs name attribute";
+		if ($elt eq "input") {
 			my $type = $attr->{type};
 			defined $type or $type = "text";
 			if ($INPUT_TEXT_LIKE{$type}) {
@@ -74,13 +74,13 @@ sub value($$) {
 					checked => ($Q->_has_value($name, $default, 1) ? "checked" : undef)
 				};
 			} else {
-				croak "value not allowed in <$tag type=\"$type\">";
+				croak "value not allowed in <$elt type=\"$type\">";
 			}
-		} elsif ($tag eq "textarea") {
+		} elsif ($elt eq "textarea") {
 			my $value = $self->_get_value($name, $default, 1);
 			return _escape_text($value);
 		} else {
-			croak "value not allowed in <$tag>";
+			croak "value not allowed in <$elt>";
 		}
 		$ret
 	}
@@ -102,30 +102,30 @@ sub options($@) {
 		}
 	}
 	sub {
-		my ($Q, $tag, $attr) = @_;
-		my @opt = ();
+		my ($Q, $elt, $attr) = @_;
+		my @option = ();
 		my $optgroup = "";
-		if ($tag eq "select" || $tag eq "datalist") {
-			my $name = $attr->{name} or croak "<$tag> needs name attribute";
+		if ($elt eq "select" || $elt eq "datalist") {
+			my $name = $attr->{name} or croak "<$elt> needs name attribute";
 			foreach my $c (@lst) {
 				my $r = ref $c;
 				if (!$r) {
-					$tag eq "select" or croak "<optgroup> not allowed in <$tag>";
+					$elt eq "select" or croak "<optgroup> not allowed in <$elt>";
 					$optgroup = $c;
 				} elsif ($r eq "ARRAY") {
 					my $o = [ $self->_options_aux($name, $c, \%label) ];
 					if ($optgroup ne "") {
 						$o = [ \"optgroup", { label => $optgroup }, $o ];
 					}
-					push @opt, $o;
+					push @option, $o;
 				} else {
 					croak "$r not allowed in options";
 				}
 			}
 		} else {
-			croak "options not allowed in <$tag>";
+			croak "options not allowed in <$elt>";
 		}
-		\@opt
+		\@option
 	}
 }
 
@@ -250,7 +250,7 @@ foreach my $elt (@ELEMENTLIST) {
 	$ELEMENT{$elt} = $EMPTY{$elt} ?
 		sub {
 			my $self = shift;
-			my $attr = { };
+			my $attr = undef;
 			while (ref $_[0] eq "HASH") {
 				$attr = shift;
 			}
@@ -291,13 +291,16 @@ sub _guard(&) {
 	bless $_[0], "CGI::HTML5::Guard"
 }
 
-sub _push_tag($@) {
-	my $self = shift;
-	my $n = @_;
-	$n > 0 or return undef;
-	my $s = $self->_extra("tag_stack");
-	push @$s, @_;
-	_guard { splice @$s, -$n }
+sub _push_elt_attr($@) {
+	my ($self, $elt, $attr) = @_;
+	my $s = $self->_extra("stack");
+	push @$s, $elt, $attr;
+	_guard { splice @$s, -2 }
+}
+
+sub _replace_attr($$) {
+	my ($self, $newattr) = @_;
+	$self->_extra("stack")->[-1] = $newattr;
 }
 
 sub _to_html($$) {
@@ -314,12 +317,12 @@ sub _to_html($$) {
 	my $attr = undef;
 	my @lst = @$obj;
 	my @ret = ();
-	my $tag_guard = undef;
+	my $elt_guard = undef;
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		$elt = ${shift @lst};
 		$fun = $ELEMENT{$elt};
-		$tag_guard = $self->_push_tag($elt);
+		$elt_guard = $self->_push_elt_attr($elt, $attr = { });
 		ref $fun eq "CODE" or croak "unknown element <$elt>";
 	}
 
@@ -333,8 +336,9 @@ sub _to_html($$) {
 		}
 		if ($r eq "HASH") {
 			$fun or croak "attributes not allowed here";
-			$attr = $attr ? { %$attr, %$c } : $c;
+			$attr = { %$attr, %$c };
 			push @ret, $attr;
+			$self->_replace_attr($attr);
 			next;
 		}
 		push @ret, $self->_to_html($c);
@@ -399,40 +403,26 @@ sub _escape_attr($) {
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-CGI::HTML5 - Perl extension for blah blah blah
+CGI::HTML5 - CGI module extension to create HTML5 pages
 
 =head1 SYNOPSIS
 
   use CGI::HTML5;
-  blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for CGI::HTML5, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
+CGI module extension to create HTML5 pages.
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
+L<CGI> - Handle Common Gateway Interface requests and responses
 
 =head1 AUTHOR
 
-Pietro Cagnoni, E<lt>pietro@E<gt>
+Pietro Cagnoni, E<lt>pietro.cagnoni@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -442,5 +432,5 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.28.1 or,
 at your option, any later version of Perl 5 you may have available.
 
-
 =cut
+
