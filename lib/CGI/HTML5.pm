@@ -161,7 +161,19 @@ sub curelt($;$) {
 }
 
 sub curattr($;$) {
-	$_[0]->_extra("stack")->[-1 - 2 * ($_[1] || 0)]
+	my ($self, $i) = @_;
+	$i ||= 0;
+	if ($i =~ /^[a-z]/) {
+		my $elt = $i;
+		$i = 0;
+		for (;;) {
+			my $e = $self->curelt($i);
+			$e or last;
+			$e eq $elt and last;
+			$i++;
+		}
+	}
+	$self->_extra("stack")->[-1 - 2 * $i] || { }
 }
 
 sub _has_param($$) {
