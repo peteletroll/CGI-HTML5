@@ -18,6 +18,7 @@ sub new($@) {
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
 	$new->{+__PACKAGE__} = { };
+	$new->_extra(tag_stack => [ ]);
 	$new->reset_form();
 	return $new;
 }
@@ -147,19 +148,19 @@ sub reset_form($) {
 	foreach my $p ($self->param()) {
 		$s->{$p} = [ $self->param($p) ];
 	}
-	$self->{+__PACKAGE__}{form_state} = $s;
+	$self->_form_state($s);
 	$self
 }
 
 sub _has_param($$) {
 	my ($self, $param) = @_;
-	my $s = $self->{+__PACKAGE__}{form_state};
+	my $s = $self->_form_state();
 	exists $s->{$param}
 }
 
 sub _has_value($$$;$) {
 	my ($self, $param, $value, $remove) = @_;
-	my $s = $self->{+__PACKAGE__}{form_state};
+	my $s = $self->_form_state();
 	my $values = $s->{$param} or return 0;
 	my $found = grep { $_ eq $value } @$values;
 	if ($found && $remove) {
@@ -171,9 +172,23 @@ sub _has_value($$$;$) {
 
 sub _get_value($$;$$) {
 	my ($self, $param, $default, $remove) = @_;
-	my $s = $self->{+__PACKAGE__}{form_state};
+	my $s = $self->_form_state();
 	my $values = $s->{$param} or return undef;
 	@$values ? ($remove ? shift @$values : $values->[0]) : $default
+}
+
+sub _form_state($;$) {
+	my ($self, $value) = @_;
+	if (@_ > 1) {
+		ref $value eq "HASH" or die "bad _form_state($value)";
+		return $self->_extra("form_state", $value);
+	}
+	$self->_extra("form_state")
+}
+
+sub _extra($$;$) {
+	my ($self, $name, $value) = @_;
+	@_ > 2 ? $self->{+__PACKAGE__}{$name} = $value : $self->{+__PACKAGE__}{$name}
 }
 
 ### initialization
@@ -266,6 +281,25 @@ foreach my $elt (@ELEMENTLIST) {
 
 ### main processing
 
+{
+	package CGI::HTML::Guard;
+	sub DESTROY { $_[0]->() }
+}
+
+sub _guard(&) {
+	defined wantarray or die "_guard() in void context";
+	bless $_[0], "CGI::HTML::Guard"
+}
+
+sub _push_tag($@) {
+	my $self = shift;
+	my $n = @_;
+	my $s = $self->_extra("tag_stack");
+	push @$s, @_;
+	use Data::Dump qw(dump);
+	_guard { splice @$s, -$n if $n > 0 }
+}
+
 sub _to_html($$) {
 	@_ == 2 or confess "_to_html() called with ", scalar @_, " parameters instead of 2";
 	my ($self, $obj) = @_;
@@ -280,10 +314,12 @@ sub _to_html($$) {
 	my $attr = undef;
 	my @lst = @$obj;
 	my @ret = ();
+	my $tag_guard = undef;
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		$elt = ${shift @lst};
 		$fun = $ELEMENT{$elt};
+		$tag_guard = $self->_push_tag($elt);
 		ref $fun eq "CODE" or croak "unknown element <$elt>";
 	}
 
