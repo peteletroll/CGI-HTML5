@@ -13,7 +13,7 @@ our @ISA = qw(CGI);
 
 our $VERSION = '0.01';
 
-sub new($@) {
+sub new {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
@@ -23,20 +23,20 @@ sub new($@) {
 	return $new;
 }
 
-sub clone($) {
+sub clone {
 	$_[0]->new($_[0]);
 }
 
-sub doctype($) {
+sub doctype {
 	_escaped("<!doctype html>")
 }
 
-sub elt($@) {
+sub elt {
 	my $self = shift;
 	scalar $self->_to_html(\@_)
 }
 
-sub literal($@) {
+sub literal {
 	my $self = shift;
 	_escaped(@_)
 }
@@ -59,7 +59,7 @@ our %INPUT_CHECKABLE = map { $_ => 1 } qw(
 	radio
 );
 
-sub value($$) {
+sub value {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
 	sub {
@@ -98,7 +98,7 @@ sub value($$) {
 	}
 }
 
-sub reset_form($) {
+sub reset_form {
 	my ($self) = @_;
 	my $s = { };
 	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
@@ -109,11 +109,11 @@ sub reset_form($) {
 	$self
 }
 
-sub curelt($;$) {
+sub curelt {
 	$_[0]->_extra("stack")->[-2 - 2 * ($_[1] || 0)] || ""
 }
 
-sub curattr($;$) {
+sub curattr {
 	my ($self, $i) = @_;
 	$i ||= 0;
 	if ($i =~ /^[a-z]/) {
@@ -129,13 +129,13 @@ sub curattr($;$) {
 	$self->_extra("stack")->[-1 - 2 * $i] || { }
 }
 
-sub _has_param($$) {
+sub _has_param {
 	my ($self, $param) = @_;
 	my $s = $self->_extra("state");
 	exists $s->{$param}
 }
 
-sub _has_value($$$;$) {
+sub _has_value {
 	my ($self, $param, $value, $remove) = @_;
 	my $s = $self->_extra("state");
 	my $values = $s->{$param} or return 0;
@@ -147,14 +147,14 @@ sub _has_value($$$;$) {
 	return $found;
 }
 
-sub _get_value($$;$$) {
+sub _get_value {
 	my ($self, $param, $default, $remove) = @_;
 	my $s = $self->_extra("state");
 	my $values = $s->{$param} or return undef;
 	@$values ? ($remove ? shift @$values : $values->[0]) : $default
 }
 
-sub _extra($$;$) {
+sub _extra {
 	my ($self, $name, $value) = @_;
 	@_ > 2 ? $self->{+__PACKAGE__}{$name} = $value : $self->{+__PACKAGE__}{$name}
 }
@@ -259,19 +259,19 @@ sub _guard(&) {
 	bless $_[0], "CGI::HTML5::Guard"
 }
 
-sub _push_elt_attr($@) {
+sub _push_elt_attr {
 	my ($self, $elt, $attr) = @_;
 	my $s = $self->_extra("stack");
 	push @$s, $elt, $attr;
 	_guard { splice @$s, -2 }
 }
 
-sub _replace_attr($$) {
+sub _replace_attr {
 	my ($self, $newattr) = @_;
 	$self->_extra("stack")->[-1] = $newattr;
 }
 
-sub _to_html($$) {
+sub _to_html {
 	@_ == 2 or confess "_to_html() called with ", scalar @_, " parameters instead of 2";
 	my ($self, $obj) = @_;
 	defined $obj or return wantarray ? () : undef;
