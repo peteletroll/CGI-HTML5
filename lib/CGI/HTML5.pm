@@ -13,11 +13,13 @@ our @ISA = qw(CGI);
 
 our $VERSION = '0.01';
 
+our $EXTRA = "-- " . __PACKAGE__ . " data --";
+
 sub new {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
-	$new->{+__PACKAGE__} = { };
+	$new->{$EXTRA} = { };
 	$new->_extra("stack", [ ]);
 	$new->reset_form();
 	return $new;
@@ -156,7 +158,7 @@ sub _get_value {
 
 sub _extra {
 	my ($self, $name, $value) = @_;
-	@_ > 2 ? $self->{+__PACKAGE__}{$name} = $value : $self->{+__PACKAGE__}{$name}
+	@_ > 2 ? $self->{$EXTRA}{$name} = $value : $self->{$EXTRA}{$name}
 }
 
 ### initialization
