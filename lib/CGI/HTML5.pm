@@ -38,6 +38,13 @@ sub elt {
 	scalar $self->_to_html(\@_)
 }
 
+sub comment {
+	my ($self) = shift;
+	my $comment = join("", @_);
+	$comment =~ s/-->/- - >/g;
+	_escaped("<!-- $comment -->")
+}
+
 sub literal {
 	my $self = shift;
 	_escaped(@_)
