@@ -131,12 +131,6 @@ sub curattr {
 	$self->_extra("stack")->[-1 - 2 * $i] || { }
 }
 
-sub _has_param {
-	my ($self, $param) = @_;
-	my $s = $self->_extra("state");
-	exists $s->{$param}
-}
-
 sub _has_value {
 	my ($self, $param, $value, $remove) = @_;
 	my $s = $self->_extra("state");

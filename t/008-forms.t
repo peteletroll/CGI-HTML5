@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 22;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -9,10 +9,6 @@ BEGIN { use_ok('CGI::HTML5') };
 my $query = "a=a1;a=a2;b=b1;b=b2";
 my $Q = CGI::HTML5->new($query);
 ok($Q);
-
-ok($Q->_has_param("a"));
-ok($Q->_has_param("b"));
-ok(!$Q->_has_param("c"));
 
 is($Q->_get_value("a"), "a1");
 is($Q->_get_value("a"), "a1");
