@@ -30,7 +30,7 @@ sub clone {
 }
 
 sub doctype {
-	_escaped("<!doctype html>")
+	_htmlstring("<!doctype html>")
 }
 
 sub elt {
@@ -42,12 +42,12 @@ sub comment {
 	my ($self) = shift;
 	my $comment = join("", @_);
 	$comment =~ s/-->/- - >/g;
-	_escaped("<!-- $comment -->")
+	_htmlstring("<!-- $comment -->")
 }
 
 sub literal {
 	my $self = shift;
-	_escaped(@_)
+	_htmlstring(@_)
 }
 
 ### form helpers
@@ -226,7 +226,7 @@ foreach my $elt (@ELEMENTLIST) {
 				$attr = shift;
 			}
 			@_ and croak "no content allowed in <$elt>";
-			_escaped(_open_tag($elt, $attr), $nl)
+			_htmlstring(_open_tag($elt, $attr), $nl)
 		} :
 		sub {
 			my $self = shift;
@@ -241,12 +241,12 @@ foreach my $elt (@ELEMENTLIST) {
 					$open = undef;
 					next;
 				}
-				$r eq "CGI::HTML5::EscapedString" or croak "unsupported reference to $r";
+				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
-				push @ret, _escaped($open . "$c" . $close);
+				push @ret, _htmlstring($open . "$c" . $close);
 			}
 			@ret or push @ret, _open_tag($elt, $attr), $close;
-			wantarray ? @ret : _escaped(@ret)
+			wantarray ? @ret : _htmlstring(@ret)
 		};
 }
 
@@ -280,7 +280,7 @@ sub _to_html {
 	defined $obj or return wantarray ? () : undef;
 	my $r = ref $obj;
 	$r or return _escape_text($obj);
-	$r eq "CGI::HTML5::EscapedString" and return $obj;
+	$r eq "CGI::HTML5::HTMLString" and return $obj;
 	$r eq "ARRAY" or croak "bad _to_html($r) call";
 
 	my $elt = undef;
@@ -316,7 +316,7 @@ sub _to_html {
 	}
 
 	$fun and return $fun->($self, @ret);
-	_escaped(@ret)
+	_htmlstring(@ret)
 }
 
 ### tag utilities
@@ -351,19 +351,19 @@ our %ENT = (
 );
 
 {
-	package CGI::HTML5::EscapedString;
+	package CGI::HTML5::HTMLString;
 	use overload '""' => sub { ${$_[0]} },
 		fallback => 0;
 }
 
-sub _escaped(@) {
-	bless \(join "", @_), "CGI::HTML5::EscapedString"
+sub _htmlstring(@) {
+	bless \(join "", @_), "CGI::HTML5::HTMLString"
 }
 
 sub _escape_text($) {
 	my ($s) = @_;
 	$s =~ s{([<>&\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
-	_escaped($s)
+	_htmlstring($s)
 }
 
 sub _escape_attr($) {

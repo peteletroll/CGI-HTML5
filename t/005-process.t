@@ -19,7 +19,7 @@ $t = $Q->_to_html([
 		[ \"i", "Bye" ]
 	]
 ]);
-isa_ok($t, "CGI::HTML5::EscapedString");
+isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
 $t = $Q->elt(
@@ -30,6 +30,6 @@ $t = $Q->elt(
                 [ \"i", "Bye" ]
         ]
 );
-isa_ok($t, "CGI::HTML5::EscapedString");
+isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<div><b>Hi</b> & <i>Bye</i></div>\n");
 

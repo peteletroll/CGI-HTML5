@@ -14,12 +14,12 @@ my $t;
 $t = $Q->elt(
 	[ \"b", sub { map { [ \"i", $_ ] } qw(a b) } ],
 );
-isa_ok($t, "CGI::HTML5::EscapedString");
+isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<b><i>a</i></b><b><i>b</i></b>");
 
 $t = $Q->elt(
         sub { map { [ \"i", $_ ] } qw(a b) },
 );
-isa_ok($t, "CGI::HTML5::EscapedString");
+isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<i>a</i><i>b</i>");
 
