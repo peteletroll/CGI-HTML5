@@ -239,6 +239,11 @@ our %PREFIX = (
 
 our %INNER_PREFIX = (
 	head => "\n<meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-Type\">\n",
+	select => "\n",
+	table => "\n",
+	tbody => "\n",
+	thead => "\n",
+	tr => "\n",
 );
 
 our %SUFFIX = (
@@ -246,10 +251,14 @@ our %SUFFIX = (
 	div => "\n",
 	head => "\n",
 	html => "\n",
-	option => "\n",
 	optgroup => "\n",
+	option => "\n",
 	p => "\n",
 	table => "\n",
+	tbody => "\n",
+	td => "\n",
+	th => "\n",
+	thead => "\n",
 	title => "\n",
 	tr => "\n",
 );
