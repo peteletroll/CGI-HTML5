@@ -1,8 +1,8 @@
 Changes
+lib/CGI/HTML5.pm
 Makefile.PL
 MANIFEST
 README
-lib/CGI/HTML5.pm
 t/000-use.t
 t/001-new.t
 t/002-escape.t
