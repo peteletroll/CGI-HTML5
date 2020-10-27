@@ -192,6 +192,8 @@ sub _extra {
 
 ### initialization
 
+sub _open_tag($$);
+
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 our @ELEMENTLIST = qw(
 	a abbr address area article aside audio
@@ -238,7 +240,7 @@ our %PREFIX = (
 );
 
 our %INNER_PREFIX = (
-	head => "\n<meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-Type\">\n",
+	head => "\n" . _open_tag("meta", { charset => "utf-8" }) . "\n",
 	select => "\n",
 	table => "\n",
 	tbody => "\n",
