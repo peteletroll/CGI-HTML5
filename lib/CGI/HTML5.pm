@@ -50,7 +50,39 @@ sub literal {
 	_htmlstring(@_)
 }
 
-### form helpers
+### html helpers
+
+sub style {
+	my $self = shift;
+	my @ret = ();
+	while (@_) {
+		my $s = shift;
+		push @ret, ($s =~ /\n/) ?
+			[ \"style", $self->literal($s) ] :
+			[ \"link", { rel => "stylesheet", href => $s } ];
+	}
+	\@ret
+}
+
+sub script {
+	my $self = shift;
+	my $type = "text/javascript";
+	my @ret = ();
+	while (@_) {
+		my $s = shift;
+		if ($s eq "type") {
+			$type = shift;
+			next;
+		} else {
+			push @ret, ($s =~ /\n/) ?
+				[ \"script", { type => $type }, $self->literal($s) ] :
+				[ \"script", { type => $type, src => $s } ];
+		}
+	}
+	\@ret
+}
+
+### form values helpers
 
 our %INPUT_TEXT_LIKE = map { $_ => 1 } qw(
 	date datetime-local
