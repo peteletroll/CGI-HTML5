@@ -249,6 +249,11 @@ our %SUFFIX = (
 	tr => "\n",
 );
 
+our %DEFAULT_ATTR = (
+	html => { lang => "en" },
+	form => { method => "get", enctype => "multipart/form-data" },
+);
+
 our %ELEMENT = ();
 
 sub _empty_element_generator($) {
@@ -340,8 +345,10 @@ sub _to_html {
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		$elt = ${shift @lst};
 		$fun = $ELEMENT{$elt};
-		$elt_guard = $self->_push_elt_attr($elt, $attr = { });
 		ref $fun eq "CODE" or croak "unknown element <$elt>";
+		my $d = $DEFAULT_ATTR{$elt};
+		$d and unshift @lst, $d;
+		$elt_guard = $self->_push_elt_attr($elt, $attr = ($d || { }));
 	}
 
 	while (@lst) {
