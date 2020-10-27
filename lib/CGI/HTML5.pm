@@ -237,20 +237,23 @@ our %EMPTY = map { $_ => 1 } qw(
 	wbr
 );
 
-our %NEWLINE = map { $_ => 1 } qw(
-	body
-	div
-	head html
-	option optgroup
-	p
-	table tr
+our %SUFFIX = (
+	body => "\n",
+	div => "\n",
+	head => "\n",
+	html => "\n",
+	option => "\n",
+	optgroup => "\n",
+	p => "\n",
+	table => "\n",
+	tr => "\n",
 );
 
 our %ELEMENT = ();
 
 sub _empty_element_generator($) {
 	my ($elt) = @_;
-	my $nl = $NEWLINE{$elt} ? "\n" : "";
+	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
 		my $attr = undef;
@@ -258,18 +261,18 @@ sub _empty_element_generator($) {
 			$attr = shift;
 		}
 		@_ and croak "no content allowed in <$elt>";
-		_htmlstring(_open_tag($elt, $attr), $nl)
+		_htmlstring(_open_tag($elt, $attr), $suffix)
 	}
 }
 
 sub _element_generator($) {
 	my ($elt) = @_;
-	my $nl = $NEWLINE{$elt} ? "\n" : "";
+	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
 		my $attr = { };
 		my $open = undef;
-		my $close = _close_tag($elt) . $nl;
+		my $close = _close_tag($elt) . $suffix;
 		my @ret = ();
 		foreach my $c (@_) {
 			my $r = ref $c;
@@ -288,7 +291,6 @@ sub _element_generator($) {
 }
 
 foreach my $elt (@ELEMENTLIST) {
-	my $nl = $NEWLINE{$elt} ? "\n" : "";
 	$ELEMENT{$elt} ||= $EMPTY{$elt} ?
 		_empty_element_generator($elt) : _element_generator($elt)
 }
