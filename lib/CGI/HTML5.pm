@@ -250,6 +250,7 @@ our %SUFFIX = (
 	optgroup => "\n",
 	p => "\n",
 	table => "\n",
+	title => "\n",
 	tr => "\n",
 );
 
@@ -352,7 +353,7 @@ sub _to_html {
 		$fun = $ELEMENT{$elt};
 		ref $fun eq "CODE" or croak "unknown element <$elt>";
 		my $d = $DEFAULT_ATTR{$elt};
-		$d and unshift @lst, $d;
+		$d and push @ret, $d;
 		$elt_guard = $self->_push_elt_attr($elt, $attr = ($d || { }));
 	}
 
@@ -427,7 +428,7 @@ sub _escape_text($) {
 
 sub _escape_attr($) {
 	my ($s) = @_;
-	$s =~ s{([<>&'"\x00-\x19\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	$s =~ s{([<>&'"\x00-\x1f\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
 	$s
 }
 
