@@ -30,7 +30,7 @@ sub clone {
 }
 
 sub doctype {
-	_htmlstring("<!doctype html>")
+	_htmlstring("<!doctype html>\n")
 }
 
 sub elt {
@@ -216,38 +216,49 @@ our %NEWLINE = map { $_ => 1 } qw(
 
 our %ELEMENT = ();
 
+sub _empty_element_generator($) {
+	my ($elt) = @_;
+	my $nl = $NEWLINE{$elt} ? "\n" : "";
+	sub {
+		my $self = shift;
+		my $attr = undef;
+		while (ref $_[0] eq "HASH") {
+			$attr = shift;
+		}
+		@_ and croak "no content allowed in <$elt>";
+		_htmlstring(_open_tag($elt, $attr), $nl)
+	}
+}
+
+sub _element_generator($) {
+	my ($elt) = @_;
+	my $nl = $NEWLINE{$elt} ? "\n" : "";
+	sub {
+		my $self = shift;
+		my $attr = { };
+		my $open = undef;
+		my $close = _close_tag($elt) . $nl;
+		my @ret = ();
+		foreach my $c (@_) {
+			my $r = ref $c;
+			if ($r eq "HASH") {
+				$attr = $c;
+				$open = undef;
+				next;
+			}
+			$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
+			$open ||= _open_tag($elt, $attr);
+			push @ret, _htmlstring($open . "$c" . $close);
+		}
+		@ret or push @ret, _open_tag($elt, $attr), $close;
+		wantarray ? @ret : _htmlstring(@ret)
+	}
+}
+
 foreach my $elt (@ELEMENTLIST) {
 	my $nl = $NEWLINE{$elt} ? "\n" : "";
-	$ELEMENT{$elt} = $EMPTY{$elt} ?
-		sub {
-			my $self = shift;
-			my $attr = undef;
-			while (ref $_[0] eq "HASH") {
-				$attr = shift;
-			}
-			@_ and croak "no content allowed in <$elt>";
-			_htmlstring(_open_tag($elt, $attr), $nl)
-		} :
-		sub {
-			my $self = shift;
-			my $attr = { };
-			my $open = undef;
-			my $close = _close_tag($elt) . $nl;
-			my @ret = ();
-			foreach my $c (@_) {
-				my $r = ref $c;
-				if ($r eq "HASH") {
-					$attr = $c;
-					$open = undef;
-					next;
-				}
-				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
-				$open ||= _open_tag($elt, $attr);
-				push @ret, _htmlstring($open . "$c" . $close);
-			}
-			@ret or push @ret, _open_tag($elt, $attr), $close;
-			wantarray ? @ret : _htmlstring(@ret)
-		};
+	$ELEMENT{$elt} ||= $EMPTY{$elt} ?
+		_empty_element_generator($elt) : _element_generator($elt)
 }
 
 ### main processing
