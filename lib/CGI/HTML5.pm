@@ -29,10 +29,6 @@ sub clone {
 	$_[0]->new($_[0]);
 }
 
-sub doctype {
-	_htmlstring("<!doctype html>\n")
-}
-
 sub elt {
 	my $self = shift;
 	scalar $self->_to_html(\@_)
@@ -237,6 +233,10 @@ our %EMPTY = map { $_ => 1 } qw(
 	wbr
 );
 
+our %PREFIX = (
+	html => "<!doctype html>\n",
+);
+
 our %SUFFIX = (
 	body => "\n",
 	div => "\n",
@@ -253,6 +253,7 @@ our %ELEMENT = ();
 
 sub _empty_element_generator($) {
 	my ($elt) = @_;
+	my $prefix = $PREFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
@@ -261,12 +262,13 @@ sub _empty_element_generator($) {
 			$attr = shift;
 		}
 		@_ and croak "no content allowed in <$elt>";
-		_htmlstring(_open_tag($elt, $attr), $suffix)
+		_htmlstring($prefix, _open_tag($elt, $attr), $suffix)
 	}
 }
 
 sub _element_generator($) {
 	my ($elt) = @_;
+	my $prefix = $PREFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
@@ -283,9 +285,9 @@ sub _element_generator($) {
 			}
 			$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 			$open ||= _open_tag($elt, $attr);
-			push @ret, _htmlstring($open . "$c" . $close);
+			push @ret, _htmlstring($prefix, $open, "$c", $close);
 		}
-		@ret or push @ret, _open_tag($elt, $attr), $close;
+		@ret or push @ret, _htmlstring($prefix, _open_tag($elt, $attr), $close);
 		wantarray ? @ret : _htmlstring(@ret)
 	}
 }
