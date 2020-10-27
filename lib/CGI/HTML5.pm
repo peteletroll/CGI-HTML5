@@ -237,6 +237,10 @@ our %PREFIX = (
 	html => "<!doctype html>\n",
 );
 
+our %INNER_PREFIX = (
+	head => "\n<meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-Type\">\n",
+);
+
 our %SUFFIX = (
 	body => "\n",
 	div => "\n",
@@ -274,6 +278,7 @@ sub _empty_element_generator($) {
 sub _element_generator($) {
 	my ($elt) = @_;
 	my $prefix = $PREFIX{$elt} || "";
+	my $inner_prefix = $INNER_PREFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
@@ -290,9 +295,9 @@ sub _element_generator($) {
 			}
 			$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 			$open ||= _open_tag($elt, $attr);
-			push @ret, _htmlstring($prefix, $open, "$c", $close);
+			push @ret, _htmlstring($prefix, $open, $inner_prefix, "$c", $close);
 		}
-		@ret or push @ret, _htmlstring($prefix, _open_tag($elt, $attr), $close);
+		@ret or push @ret, _htmlstring($prefix, _open_tag($elt, $attr), $inner_prefix, $close);
 		wantarray ? @ret : _htmlstring(@ret)
 	}
 }
