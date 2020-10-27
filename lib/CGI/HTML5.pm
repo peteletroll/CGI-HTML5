@@ -62,7 +62,7 @@ sub style {
 
 sub script {
 	my $self = shift;
-	my $type = "text/javascript";
+	my $type = undef;
 	my @ret = ();
 	while (@_) {
 		my $s = shift;
