@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+# use CGI qw(-compile :all);
+
 use Test::More tests => 11;
 BEGIN { use_ok('CGI::HTML5') };
 
@@ -19,5 +21,14 @@ foreach ($Q, $QQ) {
 	is_deeply([ sort $_->param("a") ], [ "a-val" ]);
 	is_deeply([ sort $_->param("b") ], [ "b-val" ]);
 	is_deeply([ sort $_->param("c") ], [ "c-val-1", "c-val-2" ]);
+}
+
+foreach my $s (sort keys %CGI::HTML5::) {
+	$s =~ /\W/ and next;
+	my $n = CGI::HTML5->can($s) or next;
+	my $o = CGI->can($s);
+	$o or next;
+	$n == $o and next;
+	exists $CGI::{$s} && CGI->can($s) and print "# function check: CGI::HTML5::$s() = $n overrides CGI::$s() = $o\n";
 }
 

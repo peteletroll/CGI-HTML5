@@ -49,6 +49,7 @@ sub literal {
 
 sub style {
 	my $self = shift;
+	caller eq "CGI" and return $self->SUPER::style(@_);
 	my @ret = ();
 	while (@_) {
 		my $s = shift;
@@ -61,6 +62,7 @@ sub style {
 
 sub script {
 	my $self = shift;
+	caller eq "CGI" and return $self->SUPER::script(@_);
 	my $type = undef;
 	my @ret = ();
 	while (@_) {
@@ -253,6 +255,7 @@ our %SUFFIX = (
 	div => "\n",
 	head => "\n",
 	html => "\n",
+	link => "\n",
 	optgroup => "\n",
 	option => "\n",
 	p => "\n",
