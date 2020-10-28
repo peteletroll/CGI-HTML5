@@ -59,7 +59,7 @@ is_deeply($Q->elt(\"select", { name => "a" }, [
 		[ \"option", $Q->value("a2"), "a2" ],
 		[ \"option", $Q->value("a3"), "a3" ]
 	]),
-	"<select name=\"a\"><optgroup label=\"grp\"><option selected value=\"a1\">Hi&amp;Bye</option>\n"
+	"<select name=\"a\">\n<optgroup label=\"grp\">\n<option selected value=\"a1\">Hi&amp;Bye</option>\n"
 	. "</optgroup>\n"
 	. "<option selected value=\"a2\">a2</option>\n"
 	. "<option value=\"a3\">a3</option>\n"

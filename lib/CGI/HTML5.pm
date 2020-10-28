@@ -241,6 +241,7 @@ our %PREFIX = (
 
 our %INNER_PREFIX = (
 	head => "\n" . _open_tag("meta", { charset => "utf-8" }) . "\n",
+	optgroup => "\n",
 	select => "\n",
 	table => "\n",
 	tbody => "\n",
