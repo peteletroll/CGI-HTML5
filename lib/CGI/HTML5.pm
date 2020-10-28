@@ -1,6 +1,5 @@
 package CGI::HTML5;
 
-use 5.028001;
 use strict;
 use warnings;
 
