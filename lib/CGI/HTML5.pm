@@ -484,6 +484,7 @@ our %ENT = (
 }
 
 sub _htmlstring(@) {
+	no warnings "uninitialized";
 	bless \(join "", @_), "CGI::HTML5::HTMLString"
 }
 
