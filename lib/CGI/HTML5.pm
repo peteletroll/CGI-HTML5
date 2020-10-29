@@ -14,6 +14,8 @@ our $VERSION = '0.01';
 
 our $EXTRA = "-- " . __PACKAGE__ . " data --";
 
+our $DOCTYPE = "<!doctype html>";
+
 sub new {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
@@ -43,6 +45,64 @@ sub comment {
 sub literal {
 	my $self = shift;
 	_htmlstring(@_)
+}
+
+### CGI.pm compatibility
+
+sub start_html {
+	my $self = shift;
+	my ($title, $author, $base, $xbase, $script, $noscript, $target, $meta, $head, $style, $dtd, $lang, $encoding, $declare_xml, @other) =
+		CGI::rearrange([qw(TITLE AUTHOR BASE XBASE SCRIPT NOSCRIPT TARGET META HEAD STYLE DTD LANG ENCODING DECLARE_XML)], @_);
+	my @head = ();
+	push @head , [ \"meta", { charset => "utf-8" } ];
+	defined $title and push @head, [ \"title", $title ];
+	defined $author and push @head, [ \"link", { rev => "made", href => "mailto:$author" } ];
+	if ($base || $xbase || $target) {
+		my $href = $xbase || $self->url(-path => 1);
+		my $t = $target ? qq/ target="$target"/ : '';
+		push @head, [ \"base", { href => $href, target => $target } ];
+	}
+	if (ref $meta eq 'HASH') {
+		push @head, [ \"meta", { name => $_, content => $meta->{$_} } ]
+			foreach (keys %$meta);
+	}
+	defined $head and push @head, $self->elt($head);
+
+	if (defined $script) {
+		ref $script eq "ARRAY" or $style = [ $script ];
+		foreach my $s (@$script) {
+			ref $s eq "HASH" or $s = { -src => $s };
+			defined $s->{-src} and push @head, [ \"script", { src => $s->{-src} } ], "\n";
+			defined $s->{-code} and push @head, [ \"script", $self->literal($s->{-code}) ], "\n";
+		}
+	}
+	if (defined $style) {
+		ref $style eq "ARRAY" or $style = [ $style ];
+		foreach my $s (@$style) {
+			ref $s eq "HASH" or $s = { -src => $s };
+			defined $s->{-src} and push @head, [ \"link", { rel => "stylesheet", href => $s->{-src} } ], "\n";
+			defined $s->{-code} and push @head, [ \"style", $self->literal($s->{-code}) ], "\n";
+		}
+	}
+
+	defined $noscript and push @head, [ \"noscript", $noscript ];
+	my $headstr = $self->elt(@head);
+	my $other = @other ? " @other" : "";
+	$DOCTYPE . "\n"
+		. _open_tag(html => { lang => ($lang || "en-US") })
+		. "\n"
+		. "$headstr"
+		. "<body$other>"
+}
+
+sub script_name {
+	my $self = shift;
+	my $ret = $self->SUPER::script_name(@_);
+	if (!defined $ret || $ret eq "") {
+		$ret = $0;
+		$ret =~ s/.*\///;
+	}
+	$ret
 }
 
 ### html helpers
@@ -237,7 +297,7 @@ our %EMPTY = map { $_ => 1 } qw(
 );
 
 our %PREFIX = (
-	html => "<!doctype html>\n",
+	html => "$DOCTYPE\n",
 );
 
 our %INNER_PREFIX = (
