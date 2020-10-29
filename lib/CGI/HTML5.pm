@@ -57,23 +57,15 @@ sub start_html {
 	push @head , [ \"meta", { charset => "utf-8" } ];
 	defined $title and push @head, [ \"title", $title ];
 	defined $author and push @head, [ \"link", { rev => "made", href => "mailto:$author" } ];
-	if ($base || $xbase || $target) {
-		my $href = $xbase || $self->url(-path => 1);
-		my $t = $target ? qq/ target="$target"/ : '';
-		push @head, [ \"base", { href => $href, target => $target } ];
-	}
-	if (ref $meta eq 'HASH') {
-		push @head, [ \"meta", { name => $_, content => $meta->{$_} } ]
-			foreach (keys %$meta);
-	}
+	($base || $xbase || $target) and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
+	ref $meta eq "HASH" and push @head, map { [ \"meta", { name => $_, content => $meta->{$_} } ] } sort keys %$meta;
 	defined $head and push @head, $self->elt($head);
 
 	if (defined $script) {
 		ref $script eq "ARRAY" or $style = [ $script ];
 		foreach my $s (@$script) {
 			ref $s eq "HASH" or $s = { -src => $s };
-			defined $s->{-src} and push @head, [ \"script", { src => $s->{-src} } ], "\n";
-			defined $s->{-code} and push @head, [ \"script", $self->literal($s->{-code}) ], "\n";
+			push @head, [ \"script", { src => $s->{-src} }, $self->literal($s->{-code}) ], "\n";
 		}
 	}
 	if (defined $style) {
