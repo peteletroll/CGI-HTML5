@@ -316,6 +316,7 @@ our %SUFFIX = (
 	head => "\n",
 	html => "\n",
 	link => "\n",
+	meta => "\n",
 	optgroup => "\n",
 	option => "\n",
 	p => "\n",
