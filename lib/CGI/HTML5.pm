@@ -54,7 +54,6 @@ sub start_html {
 	my ($title, $author, $base, $xbase, $script, $noscript, $target, $meta, $head, $style, $dtd, $lang, $encoding, $declare_xml, @other) =
 		CGI::rearrange([qw(TITLE AUTHOR BASE XBASE SCRIPT NOSCRIPT TARGET META HEAD STYLE DTD LANG ENCODING DECLARE_XML)], @_);
 	my @head = ();
-	push @head , [ \"meta", { charset => "utf-8" } ];
 	defined $title and push @head, [ \"title", $title ];
 	defined $author and push @head, [ \"link", { rev => "made", href => "mailto:$author" } ];
 	($base || $xbase || $target) and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
