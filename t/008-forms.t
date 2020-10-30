@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 21;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -34,23 +34,20 @@ is_deeply($Q->elt(\"textarea", { name => "a" }, $Q->value("default")),
 	"<textarea name=\"a\">default</textarea>");
 
 $Q->reset_form();
-is_deeply($Q->elt(\"input", { name => "a", type => "checkbox" }, $Q->value("a1")),
+is_deeply($Q->elt(\"input", { name => "a", type => "checkbox", value => "a1" }, $Q->value("a1")),
 	"<input checked name=\"a\" type=\"checkbox\" value=\"a1\">");
-is_deeply($Q->elt(\"input", { name => "a", type => "checkbox" }, $Q->value("a1")),
+is_deeply($Q->elt(\"input", { name => "a", type => "checkbox", value => "a1" }, $Q->value("a1")),
 	"<input name=\"a\" type=\"checkbox\" value=\"a1\">");
-is_deeply($Q->elt(\"input", { name => "a", type => "checkbox" }, $Q->value("a2")),
+is_deeply($Q->elt(\"input", { name => "a", type => "checkbox", value => "a2" }, $Q->value("a1")),
 	"<input checked name=\"a\" type=\"checkbox\" value=\"a2\">");
-is_deeply($Q->elt(\"input", { name => "a", type => "checkbox" }, $Q->value("a2")),
+is_deeply($Q->elt(\"input", { name => "a", type => "checkbox", value => "a2" }, $Q->value("a1")),
 	"<input name=\"a\" type=\"checkbox\" value=\"a2\">");
 
-$Q->param(c => "c1", "c1");
 $Q->reset_form();
-is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")),
+is_deeply($Q->elt(\"input", { name => "c", type => "checkbox", value => "c1" }, $Q->value("c1")),
 	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
-is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")),
-	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
-is_deeply($Q->elt(\"input", { name => "c", type => "checkbox" }, $Q->value("c1")),
-	"<input name=\"c\" type=\"checkbox\" value=\"c1\">");
+is_deeply($Q->elt(\"input", { name => "c", type => "checkbox", value => "c2" }, $Q->value("c1")),
+	"<input name=\"c\" type=\"checkbox\" value=\"c2\">");
 
 $Q->reset_form();
 is_deeply($Q->elt(\"select", { name => "a" }, [

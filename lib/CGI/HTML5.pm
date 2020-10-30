@@ -165,9 +165,13 @@ sub value {
 				my $value = $self->_get_value($name, $default, 1);
 				$ret = { type => $type, value => $value };
 			} elsif ($INPUT_CHECKABLE{$type}) {
+				my $value = $attr->{value};
+				defined $value or croak "<$elt type=\"$type\"> needs value attribute";
+				my $checked = $self->_has_param($name) ?
+					$Q->_has_value($name, $value, 1) :
+					$value eq $default;
 				$ret = {
-					value => $default,
-					checked => ($Q->_has_value($name, $default, 1) ? "checked" : undef)
+					checked => ($checked ? "checked" : undef)
 				};
 			} else {
 				croak "value not allowed in <$elt type=\"$type\">";
@@ -217,6 +221,12 @@ sub curattr {
 		}
 	}
 	$self->_extra("stack")->[-1 - 2 * $i] || { }
+}
+
+sub _has_param {
+	my ($self, $param) = @_;
+	my $s = $self->_extra("state");
+	defined $s->{$param}
 }
 
 sub _has_value {
