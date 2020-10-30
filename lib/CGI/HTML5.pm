@@ -149,7 +149,7 @@ our %INPUT_CHECKABLE = map { $_ => 1 } qw(
 	radio
 );
 
-sub value {
+sub default {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
 	sub {
