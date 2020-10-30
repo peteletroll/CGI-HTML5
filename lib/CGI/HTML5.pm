@@ -72,13 +72,13 @@ sub start_html {
 		ref $style eq "ARRAY" or $style = [ $style ];
 		foreach my $s (@$style) {
 			ref $s eq "HASH" or $s = { -src => $s };
-			defined $s->{-src} and push @head, [ \"link", { rel => "stylesheet", href => $s->{-src} } ], "\n";
+			defined $s->{-src} and push @head, [ \"link", { rel => "stylesheet", href => $s->{-src} } ];
 			defined $s->{-code} and push @head, [ \"style", $self->literal($s->{-code}) ], "\n";
 		}
 	}
 
 	defined $noscript and push @head, [ \"noscript", $noscript ];
-	my $headstr = $self->elt(@head);
+	my $headstr = $self->elt(\"head", \@head);
 	my $other = @other ? " @other" : "";
 	$DOCTYPE . "\n"
 		. _open_tag(html => { lang => ($lang || "en-US") })
