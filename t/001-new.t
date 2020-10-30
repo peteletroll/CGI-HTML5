@@ -23,12 +23,14 @@ foreach ($Q, $QQ) {
 	is_deeply([ sort $_->param("c") ], [ "c-val-1", "c-val-2" ]);
 }
 
+my $count = 0;
 foreach my $s (sort keys %CGI::HTML5::) {
 	$s =~ /\W/ and next;
 	my $n = CGI::HTML5->can($s) or next;
 	my $o = CGI->can($s);
 	$o or next;
 	$n == $o and next;
-	exists $CGI::{$s} && CGI->can($s) and print "# function check: CGI::HTML5::$s() = $n overrides CGI::$s() = $o\n";
+	exists $CGI::{$s} && CGI->can($s)
+		and printf "#%3d CGI::HTML5::%-20s overrides CGI::%s\n", ++$count, "$s()", "$s()";
 }
 
