@@ -99,6 +99,17 @@ sub script_name {
 
 ### html helpers
 
+sub joinelt {
+	my $self = shift;
+	my $separator = shift;
+	my @ret = ();
+	foreach my $elt (@_) {
+		@ret and push @ret, $separator;
+		push @ret, $elt;
+	}
+	\@ret
+}
+
 sub style {
 	my $self = shift;
 	caller eq "CGI" and return $self->SUPER::style(@_);
