@@ -37,7 +37,7 @@ sub elt {
 
 sub comment {
 	my ($self) = shift;
-	my $comment = join("", @_);
+	my $comment = CORE::join("", @_);
 	$comment =~ s/-->/- - >/g;
 	_htmlstring("<!-- $comment -->")
 }
@@ -110,7 +110,7 @@ sub script_name {
 
 ### html helpers
 
-sub joinelt {
+sub join {
 	my $self = shift;
 	my $separator = shift;
 	my @ret = ();
@@ -525,7 +525,7 @@ our %ENT = (
 
 sub _htmlstring(@) {
 	no warnings "uninitialized";
-	bless \(join "", @_), "CGI::HTML5::HTMLString"
+	bless \(CORE::join "", @_), "CGI::HTML5::HTMLString"
 }
 
 sub _escape_text($) {
