@@ -606,6 +606,9 @@ never have to write HTML tags by hand.
 
 =back
 
+CGI::HTML5 tag generation works with lower case tag names and attributes
+only.
+
 CGI::HTML5 intentionally lacks XHTML generation capabilities.
 
 =head1 SEE ALSO
