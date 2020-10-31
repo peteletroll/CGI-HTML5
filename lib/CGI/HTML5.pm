@@ -47,6 +47,16 @@ sub literal {
 	_htmlstring(@_)
 }
 
+sub open {
+	my $self = shift;
+	_htmlstring(_open_tag(@_))
+}
+
+sub close {
+	my $self = shift;
+	_htmlstring(_close_tag(@_))
+}
+
 ### CGI.pm compatibility
 
 sub start_html {
