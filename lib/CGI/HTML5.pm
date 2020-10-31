@@ -86,6 +86,8 @@ sub start_html {
 		. "<body$other>"
 }
 
+sub end_html { "</body></html>\n" }
+
 sub script_name {
 	my $self = shift;
 	my $ret = $self->SUPER::script_name(@_);
