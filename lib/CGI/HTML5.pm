@@ -533,19 +533,73 @@ __END__
 
 =head1 NAME
 
-CGI::HTML5 - CGI module extension to create HTML5 pages
+CGI::HTML5 - CGI.pm HTML5 extension with HTML::Tiny like content generation
 
 =head1 SYNOPSIS
 
   use CGI::HTML5;
 
+  my $q = CGI::HTML->new();
+
+  # all CGI.pm functions are available
+  print $q->header();
+
+  # HTML5 compliant <head> generation
+  print $q->start_html(-title => "HTML5 page");
+
+  # tag generation and text escaping
+  print $q->elt(\"h1", "Tips & Tricks");
+  # <h1>Tips &amp; Tricks</h1>
+
+  # repeated tag generation
+  print $q->elt(\"p", "A paragraph", "Another paragraph");
+  # <p>A paragraph</p>
+  # <p>Another paragraph</p>
+
+  # nested tag generation
+  print $q->elt(\"p", [ \"b", "A bold paragraph" ]);
+  # <p><b>A bold paragraph</b></p>
+
+  # attributes
+  print $q->elt("This is a ", [ \"a", { href => "tgt.html" }, "link" ], ".");
+  # This is a <a href="tgt.html">link</a>.
+
+  print $q->end_html();
+
 =head1 DESCRIPTION
 
-CGI module extension to create HTML5 pages.
+CGI::HTML5 design goals are:
+
+=over
+
+=item *
+work as a drop-in replacement for CGI.pm;
+
+=item *
+generate HTML from data structures, like HTML::Tiny does;
+
+=item *
+produce HTML5 content;
+
+=item *
+always use UTF-8;
+
+=item *
+handle HTML escaping transparently, while preventing unwanted double
+escaping ("&amp;amp;");
+
+=item *
+never have to write HTML tags by hand.
+
+=back
+
+CGI::HTML5 intentionally lacks XHTML generation capabilities.
 
 =head1 SEE ALSO
 
 L<CGI> - Handle Common Gateway Interface requests and responses
+
+L<HTML::Tiny> - Lightweight, dependency free HTML/XML generation
 
 =head1 AUTHOR
 
