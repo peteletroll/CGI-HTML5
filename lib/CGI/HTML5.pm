@@ -450,7 +450,10 @@ sub _to_html {
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		$elt = ${shift @lst};
 		$fun = $ELEMENT{$elt};
-		ref $fun eq "CODE" or croak "unknown element <$elt>";
+		if (ref $fun ne "CODE") {
+			$ELEMENT{lc $elt} and croak "\"\Q$elt\E\" must be lower case";
+			croak "unknown element <$elt>";
+		}
 		my $d = $DEFAULT_ATTR{$elt};
 		$d and push @ret, $d;
 		$elt_guard = $self->_push_elt_attr($elt, $attr = ($d || { }));
