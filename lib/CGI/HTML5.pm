@@ -48,13 +48,13 @@ sub literal {
 }
 
 sub open {
-	my $self = shift;
-	_htmlstring(_open_tag(@_))
+	my ($self, $tag, $attr) = @_;
+	_htmlstring(_open_tag($tag, $attr))
 }
 
 sub close {
-	my $self = shift;
-	_htmlstring(_close_tag(@_))
+	my ($self, $tag) = @_;
+	_htmlstring(_close_tag($tag))
 }
 
 ### CGI.pm compatibility
@@ -89,14 +89,14 @@ sub start_html {
 	defined $noscript and push @head, [ \"noscript", $noscript ];
 	my $headstr = $self->elt(\"head", \@head);
 	my $other = @other ? " @other" : "";
-	$DOCTYPE . "\n"
+	_htmlstring($DOCTYPE . "\n"
 		. _open_tag(html => { lang => ($lang || "en-US") })
 		. "\n"
 		. "$headstr"
-		. "<body$other>"
+		. "<body$other>")
 }
 
-sub end_html { "</body></html>\n" }
+sub end_html { _htmstring("</body></html>\n") }
 
 sub script_name {
 	my $self = shift;
