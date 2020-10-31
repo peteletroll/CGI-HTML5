@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 26;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -33,9 +33,13 @@ is_deeply($Q->_to_html([ \"b", [ $s, $s ] ]), "<b>$es$es</b>");
 is_deeply($Q->_to_html([ \"b", [ sub { ($s, $s) } ] ]), "<b>$es$es</b>");
 
 is_deeply($Q->_to_html([ \"b", [ \"i", $s, $s ] ]), "<b><i>$es</i><i>$es</i></b>");
+is_deeply($Q->_to_html([ \"b", \"i", $s, $s ]), "<b><i>$es</i><i>$es</i></b>");
 is_deeply($Q->_to_html([ \"b", [ \"i", sub { ($s, $s) } ] ]), "<b><i>$es</i><i>$es</i></b>");
+is_deeply($Q->_to_html([ \"b", \"i", sub { ($s, $s) } ]), "<b><i>$es</i><i>$es</i></b>");
 is_deeply($Q->_to_html([ \"b", [ \"i", [ $s, $s ] ] ]), "<b><i>$es$es</i></b>");
+is_deeply($Q->_to_html([ \"b", \"i", [ $s, $s ] ]), "<b><i>$es$es</i></b>");
 is_deeply($Q->_to_html([ \"b", [ \"i", [ sub { ($s, $s) } ] ] ]), "<b><i>$es$es</i></b>");
+is_deeply($Q->_to_html([ \"b", \"i", [ sub { ($s, $s) } ] ]), "<b><i>$es$es</i></b>");
 
 sub iterator($$);
 sub iterator($$) {

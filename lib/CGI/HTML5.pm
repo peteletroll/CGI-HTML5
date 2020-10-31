@@ -452,6 +452,11 @@ sub _to_html {
 			unshift @lst, ($c->($self));
 			next;
 		}
+		if ($r eq "SCALAR") {
+			unshift @lst, $c;
+			@lst = $self->_to_html(\@lst);
+			next;
+		}
 		if ($r eq "HASH") {
 			$fun or croak "attributes not allowed here";
 			$attr = { %$attr, %$c };
