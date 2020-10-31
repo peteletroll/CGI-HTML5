@@ -579,6 +579,9 @@ work as a drop-in replacement for CGI.pm;
 generate HTML from data structures, like HTML::Tiny does;
 
 =item *
+preserve form values across submits as CGI.pm does;
+
+=item *
 produce HTML5 content;
 
 =item *
