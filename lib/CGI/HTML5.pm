@@ -49,6 +49,12 @@ sub literal {
 
 sub open {
 	my ($self, $tag, $attr) = @_;
+	my $def = $CGI::HTML5::DEFAULT_ATTR{$tag};
+	if ($attr) {
+		$def and $attr = { %$def, %$attr };
+	} else {
+		$attr = $def;
+	}
 	_htmlstring(_open_tag($tag, $attr))
 }
 
