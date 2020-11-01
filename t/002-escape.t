@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -21,4 +21,9 @@ my $res = join("", $e1, $e2);
 is_deeply($s1 . $e2, $res);
 is_deeply($e1 . $s2, $res);
 is_deeply($e1 . $e2, $res);
+
+$e1 .= $s2;
+is_deeply($e1, "Hi&amp;&amp;Bye");
+$e2 .= $Q->literal($s2);
+is_deeply($e2, "&amp;Bye&Bye");
 

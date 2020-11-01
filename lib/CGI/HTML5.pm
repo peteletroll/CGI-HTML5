@@ -552,7 +552,13 @@ our %ENT = (
 		'.' => sub {
 			my ($self, $other, $swap) = @_;
 			ref $other eq __PACKAGE__ or $other = CGI::HTML5::_escape_text($other);
-			CGI::HTML5::_htmlstring($swap ? ($$other . $$self) : ($$self . $$other))
+			CGI::HTML5::_htmlstring($swap ? ($$other, $$self) : ($$self, $$other))
+		},
+		'.=' => sub {
+			my ($self, $other) = @_;
+			ref $other eq __PACKAGE__ or $other = CGI::HTML5::_escape_text($other);
+			$$self .= $$other;
+			$self
 		};
 }
 
