@@ -604,9 +604,13 @@ CGI::HTML5 - CGI.pm HTML5 extension with HTML::Tiny like content generation
   # <h1>Tips &amp; Tricks</h1>
 
   # repeated tag generation
-  print $q->elt(\"p", "A paragraph", "Another paragraph");
-  # <p>A paragraph</p>
-  # <p>Another paragraph</p>
+  print $q->elt(\"p", "A paragraph.", "Another paragraph.");
+  # <p>A paragraph.</p>
+  # <p>Another paragraph.</p>
+
+  # disable repeated tag generation
+  print $q->elt(\"p", [ "A paragraph.", "The same paragraph." ]);
+  # <p>A paragraph.The same paragraph.</p>
 
   # nested tag generation
   print $q->elt(\"p", [ \"b", "A bold paragraph" ]);
