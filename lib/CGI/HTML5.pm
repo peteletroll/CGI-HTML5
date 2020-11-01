@@ -104,6 +104,28 @@ sub start_html {
 
 sub end_html { _htmstring("</body></html>\n") }
 
+sub start_form {
+	my $self = shift;
+	$self->reset_form();
+	_htmlstring($self->SUPER::start_form(@_))
+}
+
+sub end_form {
+	my $self = shift;
+	_htmlstring($self->SUPER::end_form(@_))
+}
+
+sub start_multipart_form {
+	my $self = shift;
+	$self->reset_form();
+	_htmlstring($self->SUPER::start_multipart_form(@_))
+}
+
+sub end_multipart_form {
+	my $self = shift;
+	_htmlstring($self->SUPER::end_multipart_form(@_))
+}
+
 sub script_name {
 	my $self = shift;
 	my $ret = $self->SUPER::script_name(@_);

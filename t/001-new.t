@@ -31,6 +31,6 @@ foreach my $s (sort keys %CGI::HTML5::) {
 	$o or next;
 	$n == $o and next;
 	exists $CGI::{$s} && CGI->can($s)
-		and printf "#%3d CGI::HTML5::%-20s overrides CGI::%s\n", ++$count, "$s()", "$s()";
+		and printf "#%3d CGI::HTML5::%-24s overrides CGI::%s\n", ++$count, "$s()", "$s()";
 }
 
