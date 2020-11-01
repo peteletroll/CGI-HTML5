@@ -547,13 +547,18 @@ our %ENT = (
 
 {
 	package CGI::HTML5::HTMLString;
-	use overload '""' => sub { ${$_[0]} },
-		fallback => 0;
+	use overload fallback => 0,
+		'""' => sub { ${$_[0]} },
+		'.' => sub {
+			my ($self, $other, $swap) = @_;
+			ref $other eq __PACKAGE__ or $other = CGI::HTML5::_escape_text($other);
+			CGI::HTML5::_htmlstring($swap ? ($$other . $$self) : ($$self . $$other))
+		};
 }
 
 sub _htmlstring(@) {
 	no warnings "uninitialized";
-	bless \(CORE::join "", @_), "CGI::HTML5::HTMLString"
+	bless \CORE::join("", @_), "CGI::HTML5::HTMLString"
 }
 
 sub _escape_text($) {
