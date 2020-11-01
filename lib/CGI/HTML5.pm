@@ -617,8 +617,8 @@ CGI::HTML5 - CGI.pm HTML5 extension with HTML::Tiny like content generation
   # <p><b>A bold paragraph</b></p>
 
   # attributes
-  print $q->elt("This is a ", [ \"a", { href => "tgt.html" }, "link" ], ".");
-  # This is a <a href="tgt.html">link</a>.
+  print $q->elt("This is a ", [ \"a", { href => "tgt.cgi?a=1&b=2" }, "link" ], ".");
+  # This is a <a href="tgt.cgi?a=1&amp;b=2">link</a>.
 
   print $q->end_html();
 
