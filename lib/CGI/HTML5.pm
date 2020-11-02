@@ -587,7 +587,7 @@ __END__
 
 =head1 NAME
 
-CGI::HTML5 - CGI.pm HTML5 extension with HTML::Tiny like content generation
+CGI::HTML5 - CGI.pm HTML5 extension
 
 =head1 SYNOPSIS
 
@@ -626,7 +626,9 @@ CGI::HTML5 - CGI.pm HTML5 extension with HTML::Tiny like content generation
 
 =head1 DESCRIPTION
 
-CGI::HTML5 design goals are:
+CGI::HTML5 brings good old CGI.pm into the new HTML5 world.
+
+=head1 Design goals
 
 =over
 
