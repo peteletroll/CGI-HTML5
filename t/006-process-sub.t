@@ -11,13 +11,13 @@ ok($Q);
 
 my $t;
 
-$t = $Q->elt(
+$t = $Q->hs(
 	[ \"b", sub { map { [ \"i", $_ ] } qw(a b) } ],
 );
 isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<b><i>a</i></b><b><i>b</i></b>");
 
-$t = $Q->elt(
+$t = $Q->hs(
         sub { map { [ \"i", $_ ] } qw(a b) },
 );
 isa_ok($t, "CGI::HTML5::HTMLString");

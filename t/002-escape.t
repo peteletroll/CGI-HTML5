@@ -16,7 +16,7 @@ my $Q = CGI::HTML5->new();
 ok($Q);
 
 my ($s1, $s2) = qw(Hi& &Bye);
-my ($e1, $e2) = map { $Q->elt($_) } ($s1, $s2);
+my ($e1, $e2) = map { $Q->hs($_) } ($s1, $s2);
 my $res = join("", $e1, $e2);
 is_deeply($s1 . $e2, $res);
 is_deeply($e1 . $s2, $res);

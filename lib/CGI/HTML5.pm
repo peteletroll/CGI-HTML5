@@ -30,7 +30,9 @@ sub clone {
 	$_[0]->new($_[0]);
 }
 
-sub elt {
+sub htmlstring { &hs }
+
+sub hs {
 	my $self = shift;
 	scalar $self->_to_html(\@_)
 }
@@ -74,7 +76,7 @@ sub start_html {
 	defined $author and push @head, [ \"link", { rev => "made", href => "mailto:$author" } ];
 	($base || $xbase || $target) and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
 	ref $meta eq "HASH" and push @head, map { [ \"meta", { name => $_, content => $meta->{$_} } ] } sort keys %$meta;
-	defined $head and push @head, $self->elt($head);
+	defined $head and push @head, $self->hs($head);
 
 	if (defined $script) {
 		ref $script eq "ARRAY" or $style = [ $script ];
@@ -93,7 +95,7 @@ sub start_html {
 	}
 
 	defined $noscript and push @head, [ \"noscript", $noscript ];
-	my $headstr = $self->elt(\"head", \@head);
+	my $headstr = $self->hs(\"head", \@head);
 	my $other = @other ? " @other" : "";
 	_htmlstring($DOCTYPE . "\n"
 		. _open_tag(html => { lang => ($lang || "en-US") })
@@ -102,7 +104,7 @@ sub start_html {
 		. "<body$other>")
 }
 
-sub end_html { _htmstring("</body></html>\n") }
+sub end_html { _htmlstring("</body></html>\n") }
 
 sub start_form {
 	my $self = shift;
@@ -600,24 +602,24 @@ CGI::HTML5 - CGI.pm HTML5 extension with HTML::Tiny like content generation
   print $q->start_html(-title => "HTML5 page");
 
   # tag generation and text escaping
-  print $q->elt(\"h1", "Tips & Tricks");
+  print $q->hs(\"h1", "Tips & Tricks");
   # <h1>Tips &amp; Tricks</h1>
 
   # repeated tag generation
-  print $q->elt(\"p", "A paragraph.", "Another paragraph.");
+  print $q->hs(\"p", "A paragraph.", "Another paragraph.");
   # <p>A paragraph.</p>
   # <p>Another paragraph.</p>
 
   # disable repeated tag generation
-  print $q->elt(\"p", [ "A paragraph.", "The same paragraph." ]);
+  print $q->hs(\"p", [ "A paragraph.", "The same paragraph." ]);
   # <p>A paragraph.The same paragraph.</p>
 
   # nested tag generation
-  print $q->elt(\"p", [ \"b", "A bold paragraph" ]);
+  print $q->hs(\"p", [ \"b", "A bold paragraph" ]);
   # <p><b>A bold paragraph</b></p>
 
   # attributes
-  print $q->elt("This is a ", [ \"a", { href => "tgt.cgi?a=1&b=2" }, "link" ], ".");
+  print $q->hs("This is a ", [ \"a", { href => "tgt.cgi?a=1&b=2" }, "link" ], ".");
   # This is a <a href="tgt.cgi?a=1&amp;b=2">link</a>.
 
   print $q->end_html();

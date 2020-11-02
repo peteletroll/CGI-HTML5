@@ -22,7 +22,7 @@ $t = $Q->_to_html([
 isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<div><b>Hi</b> &amp; <i>Bye</i></div>\n");
 
-$t = $Q->elt(
+$t = $Q->hs(
         \"div",
         [
                 [ \"b", "Hi" ],
