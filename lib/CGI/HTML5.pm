@@ -631,26 +631,26 @@ CGI::HTML5 design goals are:
 =over
 
 =item *
-work as a drop-in replacement for CGI.pm;
-
-=item *
-generate HTML from data structures, like HTML::Tiny does;
-
-=item *
-preserve form values across submits as CGI.pm does;
-
-=item *
 produce HTML5 content;
 
 =item *
-always use UTF-8;
+easy migration from CGI.pm;
+
+=item *
+generate HTML from data structures;
+
+=item *
+support sticky forms;
 
 =item *
 handle HTML escaping transparently, while preventing unwanted double
 escaping ("&amp;amp;");
 
 =item *
-never have to write HTML tags by hand.
+always use UTF-8;
+
+=item *
+no need to write HTML tags by hand.
 
 =back
 
