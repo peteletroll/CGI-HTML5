@@ -201,7 +201,7 @@ our %INPUT_CHECKABLE = map { $_ => 1 } qw(
 	radio
 );
 
-sub default {
+sub sticky {
 	my ($self, $default) = @_;
 	defined $default or $default = "";
 	sub {
