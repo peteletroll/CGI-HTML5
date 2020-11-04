@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 
-use CGI qw(-utf8 -noxhtml);
+use CGI qw(-noxhtml);
 binmode STDOUT, ":utf8";
 
 our @ISA = qw(CGI);
@@ -582,10 +582,11 @@ sub _escape_attr($) {
 
 sub _fix_utf8_params {
 	my ($self) = @_;
+	my $param = $self->{param} || $self;
 	foreach (@{$self->{".parameters"} || [ ]}) {
 		my $o = $_;
-		utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_) foreach $_, @{$self->{param}{$o}};
-		$_ eq $o or $self->{param}{$_} = delete $self->{param}{$o};
+		utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_) foreach $_, @{$param->{$o}};
+		$_ eq $o or $param->{$_} = delete $param->{$o};
 	}
 }
 
