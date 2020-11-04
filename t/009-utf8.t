@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 217;
+use Test::More tests => 271;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -41,6 +41,11 @@ foreach my $name (@tst) {
 			is_deeply($Q->hs(\"input", { name => $name }, $Q->sticky()),
 				"<input name=\"$name\" type=\"text\" value=\"\">",
 				"input tag");
+
+			is_deeply($Q->textfield(-name => $name),
+				"<input type=\"text\" name=\"$name\" value=\"$val1\">");
+			is_deeply($Q->textarea(-name => $name),
+				"<textarea name=\"$name\" >$val1</textarea>");
 		}
 	}
 }
