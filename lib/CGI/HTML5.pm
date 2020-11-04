@@ -20,6 +20,7 @@ sub new {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
 	$new->charset("utf8");
+	$new->_fix_utf8_params();
 	$new->{$EXTRA} = { };
 	$new->_extra("stack", [ ]);
 	$new->reset_form();
@@ -248,9 +249,7 @@ sub reset_form {
 	my ($self) = @_;
 	my $s = { };
 	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
-	foreach my $p ($self->param()) {
-		$s->{$p} = [ $self->param($p) ];
-	}
+	$s->{$_} = [ $self->param($_) ] foreach $self->param();
 	$self->_extra("state", $s);
 	$self
 }
@@ -581,6 +580,15 @@ sub _escape_attr($) {
 	$s
 }
 
+sub _fix_utf8_params {
+	my ($self) = @_;
+	foreach (@{$self->{".parameters"} || [ ]}) {
+		my $o = $_;
+		utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_) foreach $_, @{$self->{param}{$o}};
+		$_ eq $o or $self->{param}{$_} = delete $self->{param}{$o};
+	}
+}
+
 1;
 
 __END__
@@ -655,6 +663,8 @@ always use UTF-8;
 no need to write HTML tags by hand.
 
 =back
+
+=head1 NOTES
 
 CGI::HTML5 tag generation works with lower case tag names and attributes
 only.
