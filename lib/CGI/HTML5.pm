@@ -249,7 +249,7 @@ sub reset_form {
 	my $s = { };
 	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
 	foreach my $p ($self->param()) {
-		$s->{$p} = [ map { utf8::decode($_); $_ } $self->param($p) ];
+		$s->{$p} = [ $self->param($p) ];
 	}
 	$self->_extra("state", $s);
 	$self
