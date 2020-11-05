@@ -12,7 +12,7 @@ our @ISA = qw(CGI);
 
 our $VERSION = '0.01';
 
-our $EXTRA = "-- " . __PACKAGE__ . " data --";
+our $EXTRA = "{" . __PACKAGE__ . "}";
 
 our $DOCTYPE = "<!doctype html>";
 
@@ -585,7 +585,7 @@ sub _fix_utf8_params {
 	my $param = $self->{param} || $self;
 	foreach (@{$self->{".parameters"} || [ ]}) {
 		my $o = $_;
-		utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_) foreach $_, @{$param->{$o}};
+		ref $_ || utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_) foreach $_, @{$param->{$o}};
 		$_ eq $o or $param->{$_} = delete $param->{$o};
 	}
 }
