@@ -14,6 +14,8 @@ use HTTP::Request::Common qw(POST);
 
 my @tst = ("a", "\xe0", "\x{20ac}");
 
+my $boundary = "CGIHTML5TEST";
+
 foreach my $fld (map { "PARM-$_" } @tst) {
 	foreach my $nam (@tst) {
 		foreach my $cnt (@tst) {
@@ -28,9 +30,10 @@ foreach my $fld (map { "PARM-$_" } @tst) {
 			# generating POST request
 			my ($hp, $np) = tempfile("POST-$nam-XXXXXX", UNLINK => 1);
 			binmode $hp, ":raw";
+			my $content_type = "multipart/form-data; boundary=$boundary";
 			my $post = POST(
 				"http://localhost/cgi-html5-test",
-				Content_Type => "multipart/form-data",
+				Content_Type => $content_type,
 				Content => [ encode_utf8($fld) => [ $nf ] ]
 			)->content();
 			print $hp $post;
@@ -38,7 +41,7 @@ foreach my $fld (map { "PARM-$_" } @tst) {
 
 			open STDIN, "<", $np or die "can't redirect: $!";
 			local $ENV{REQUEST_METHOD} ="POST";
-			local $ENV{CONTENT_TYPE} = 'multipart/form-data; boundary=xYzZY';
+			local $ENV{CONTENT_TYPE} = $content_type;
 			my $Q = CGI::HTML5->new();
 
 			is_deeply([ $Q->param() ], [ $fld ], "param list");
