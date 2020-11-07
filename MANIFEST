@@ -13,4 +13,5 @@ t/006-process-sub.t
 t/007-to-html.t
 t/008-forms.t
 t/009-utf8.t
+t/010-upload.t
 t/900-kwalitee.t
