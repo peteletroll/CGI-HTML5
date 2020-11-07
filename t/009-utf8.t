@@ -43,9 +43,11 @@ foreach my $name (@tst) {
 				"input tag");
 
 			is_deeply($Q->textfield(-name => $name),
-				"<input type=\"text\" name=\"$name\" value=\"$val1\">");
+				"<input type=\"text\" name=\"$name\" value=\"$val1\">",
+				"CGI::textfield()");
 			is_deeply($Q->textarea(-name => $name),
-				"<textarea name=\"$name\" >$val1</textarea>");
+				"<textarea name=\"$name\" >$val1</textarea>",
+				"CGI::textarea()");
 		}
 	}
 }
