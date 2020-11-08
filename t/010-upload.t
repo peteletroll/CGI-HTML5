@@ -13,44 +13,72 @@ use File::Temp qw(tempfile);
 use HTTP::Request::Common qw(POST);
 
 my @tst = ("a", "\xe0", "\x{20ac}");
+# @tst = ("\xe0", "\x{20ac}");
 
-my $boundary = "CGIHTML5TEST";
+utf8::upgrade($_) foreach @tst;
 
-foreach my $fld (map { "PARM-$_" } @tst) {
+my $boundary = "CGI-HTML5-TEST-BOUNDARY";
+
+binmode STDOUT, ":raw";
+
+sub _escape($) {
+	my ($s) = @_;
+	utf8::upgrade($s);
+	utf8::encode($s);
+	$s = CGI::escape($s);
+	$s
+}
+
+close STDIN or die "can't close STDIN: $!";
+
+local $| = 1;
+
+foreach my $cnt (@tst) {
+	# generating content file
+	my ($hf, $nf) = tempfile(encode_utf8("FILE-cnt-$cnt-XXXXXX"), UNLINK => 1);
+	binmode $hf, ":raw";
+	my $cnt_bytes = encode_utf8("CONT-$cnt\n");
+	print $hf "$cnt_bytes";
+	close $hf;
+
 	foreach my $nam (@tst) {
-		foreach my $cnt (@tst) {
-			# generating content file
-			my ($hf, $nf) = tempfile(encode_utf8("FILE-$nam-XXXXXX"), UNLINK => 1);
-			my $filecnt = "$cnt\n";
-			utf8::encode($filecnt);
-			binmode $hf, ":raw";
-			print $hf $filecnt;
-			close $hf;
+		foreach my $val (@tst) {
+			my $lbl = encode_utf8("nam=$nam val=$val cnt=$cnt");
+			# print "\nLABEL ", $lbl, "\n";
 
 			# generating POST request
-			my ($hp, $np) = tempfile("POST-$nam-XXXXXX", UNLINK => 1);
+			my ($hp, $np) = tempfile(encode_utf8("POST-nam=$nam-val=$val-cnt=$cnt-XXXXXX"), UNLINK => 1);
 			binmode $hp, ":raw";
 			my $content_type = "multipart/form-data; boundary=$boundary";
-			my $post = POST(
-				"http://localhost/cgi-html5-test",
+			my $post = POST("http://localhost/cgi-html5-test",
 				Content_Type => $content_type,
-				Content => [ encode_utf8($fld) => [ $nf ] ]
+				Content => [ encode_utf8($nam) => [ $nf ] ]
 			)->content();
+			# print "-" x 20, "\n", $post, "-" x 20, "\n";
 			print $hp $post;
-			seek $hp, 0, 0;
+			close $hp;
 
-			open STDIN, "<", $np or die "can't redirect: $!";
-			local $ENV{REQUEST_METHOD} ="POST";
-			local $ENV{CONTENT_TYPE} = $content_type;
-			my $Q = CGI::HTML5->new();
+			my $Q = do {
+				local %ENV = (
+					GATEWAY_INTERFACE => "CGI/1.1",
+					REQUEST_METHOD => "POST",
+					CONTENT_TYPE => $content_type,
+				);
+				open STDIN, "<:raw", $np or die "can't redirect STDIN: $!";
+				CGI::initialize_globals();
+				my $Q = CGI::HTML5->new();
+				close STDIN or die "can't close STDIN: $!";
+				$Q
+			};
 
-			is_deeply([ $Q->param() ], [ $fld ], "param list");
-			is($Q->param($fld), $nf, "param value");
+			is($Q->query_string(), _escape($nam) . "=" . _escape(decode_utf8($nf)), "query string - $lbl");
+			is_deeply([ $Q->param() ], [ $nam ], "param list - $lbl");
+			is($Q->param($nam), $nf, "param value - $lbl");
 
-			my $h = $Q->param($fld);
+			my $h = $Q->param($nam);
 			local $/ = undef;
 			my $newcnt = <$h>;
-			is($newcnt, $filecnt, "file content");
+			is($newcnt, $cnt_bytes, "file content - $lbl");
 		}
 	}
 }
