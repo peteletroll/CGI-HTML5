@@ -19,7 +19,8 @@ utf8::upgrade($_) foreach @tst;
 
 my $boundary = "CGI-HTML5-TEST-BOUNDARY";
 
-binmode STDOUT, ":raw";
+binmode STDOUT, ":utf8";
+binmode STDERR, ":utf8";
 
 sub _escape($) {
 	my ($s) = @_;
@@ -36,10 +37,15 @@ local $| = 1;
 foreach my $cnt (@tst) {
 	# generating content file
 	my ($hf, $nf) = tempfile(encode_utf8("FILE-cnt-$cnt-XXXXXX"), UNLINK => 1);
-	binmode $hf, ":raw";
-	my $cnt_bytes = encode_utf8("CONT-$cnt\n");
-	print $hf "$cnt_bytes";
+	my $filename = decode_utf8($nf);
+	utf8::upgrade($filename);
+	binmode $hf, ":utf8";
+	my $cnt_chars = "CONT-$cnt\n";
+	print $hf $cnt_chars;
 	close $hf;
+
+	my $cnt_bytes = $cnt_chars;
+	utf8::encode($cnt_bytes);
 
 	foreach my $nam (@tst) {
 		foreach my $val (@tst) {
@@ -54,7 +60,7 @@ foreach my $cnt (@tst) {
 				Content_Type => $content_type,
 				Content => [ encode_utf8($nam) => [ $nf ] ]
 			)->content();
-			# print "-" x 20, "\n", $post, "-" x 20, "\n";
+			print "-" x 20, "\n", $post, "-" x 20, "\n";
 			print $hp $post;
 			close $hp;
 
@@ -71,9 +77,15 @@ foreach my $cnt (@tst) {
 				$Q
 			};
 
-			is($Q->query_string(), _escape($nam) . "=" . _escape(decode_utf8($nf)), "query string - $lbl");
-			is_deeply([ $Q->param() ], [ $nam ], "param list - $lbl");
-			is($Q->param($nam), $nf, "param value - $lbl");
+			use Data::Dump qw(dump);
+			print "CGI ", dump($Q), "\n";
+			print "QUERY_STRING ", $Q->query_string(), "\n";
+			print "PARAM $nam ", dump($Q->param($nam)), "\n";
+			print "PARAM $nam ", dump($Q->param($nam) . ""), "\n";
+
+			is($Q->query_string(), _escape($nam) . "=" . _escape($filename), "query string - $lbl");
+			is_deeply([ map { encode_utf8($_) } $Q->param() ], [ encode_utf8($nam) ], "param list - $lbl");
+			is(encode_utf8($Q->param($nam)), encode_utf8($filename), "param value - $lbl");
 
 			my $h = $Q->param($nam);
 			local $/ = undef;
