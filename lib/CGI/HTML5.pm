@@ -585,8 +585,21 @@ sub _fix_utf8_params {
 	my $param = $self->{param} || $self;
 	foreach (@{$self->{".parameters"} || [ ]}) {
 		my $o = $_;
-		ref $_ || utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_) foreach $_, @{$param->{$o}};
+		_fix_utf8($_, @{$param->{$o}});
 		$_ eq $o or $param->{$_} = delete $param->{$o};
+	}
+}
+
+sub _fix_utf8 {
+	foreach (@_) {
+		defined $_ or next;
+		my $r = ref $_;
+		if ($r) {
+			# nothing
+			# maybe some file name fixing some day
+		} else {
+			utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_);
+		}
 	}
 }
 
