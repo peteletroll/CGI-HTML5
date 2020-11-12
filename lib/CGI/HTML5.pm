@@ -224,7 +224,7 @@ sub sticky {
 					$Q->_has_value($name, $value, 1) :
 					$value eq $default;
 				$ret = {
-					checked => ($checked ? "checked" : undef)
+					checked => ($checked ? \1 : \0)
 				};
 			} else {
 				croak "value not allowed in <$elt type=\"$type\">";
@@ -236,7 +236,7 @@ sub sticky {
 		} elsif ($elt eq "option") {
 			my $name = $Q->curattr("select")->{name};
 			defined $name or croak "<$elt> needs outer <select> name attribute";
-			my $selected = $self->_has_value($name, $default, 1) ? "selected" : undef;
+			my $selected = $self->_has_value($name, $default, 1) ? \1 : \0;
 			$ret = { value => $default, selected => $selected };
 		} else {
 			croak "value not allowed in <$elt>";
@@ -530,8 +530,11 @@ sub _attr($) {
 		my $v = $a->{$n};
 		defined $v or next;
 		$n =~ /[\s<>&'"=\/]/ and croak "unsafe attribute name '$n'";
-		$ret .= " $n";
-		$ret .= "=\"" . _escape_attr($v) . "\"" if $v ne $n;
+		if (ref $v eq "SCALAR") {
+			$$v and $ret .= " $n";
+		} else {
+			$ret .= " $n=\"" . _escape_attr($v) . "\"";
+		}
 	}
 	$ret
 }

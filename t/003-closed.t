@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -23,7 +23,11 @@ $t = $Q->hs(\"img", { src => "z" });
 isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<img src=\"z\">");
 
-$t = $Q->hs(\"input", { type => "checkbox" }, { checked => "checked", other => undef });
+$t = $Q->hs(\"input", { type => "checkbox" }, { checked => \1, other => undef });
 isa_ok($t, "CGI::HTML5::HTMLString");
 is_deeply($t, "<input checked type=\"checkbox\">");
+
+$t = $Q->hs(\"input", { type => "checkbox" }, { checked => \0, other => undef });
+isa_ok($t, "CGI::HTML5::HTMLString");
+is_deeply($t, "<input type=\"checkbox\">");
 
