@@ -549,7 +549,8 @@ our %ENT = (
 {
 	package CGI::HTML5::HTMLString;
 	use overload fallback => 0,
-		'""' => sub { ${$_[0]} },
+		'""' => \&string,
+		'bool' => \&string,
 		'.' => sub {
 			my ($self, $other, $swap) = @_;
 			ref $other eq __PACKAGE__ or $other = CGI::HTML5::_escape_text($other);
@@ -561,6 +562,8 @@ our %ENT = (
 			$$self .= $$other;
 			$self
 		};
+
+	sub string { ${$_[0]} }
 }
 
 sub _htmlstring(@) {
