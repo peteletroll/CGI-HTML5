@@ -247,10 +247,7 @@ sub sticky {
 
 sub reset_form {
 	my ($self) = @_;
-	my $s = { };
-	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
-	$s->{$_} = [ $self->param($_) ] foreach $self->param();
-	$self->_extra("state", $s);
+	$self->_extra("state", $self->_param_hash());
 	$self
 }
 
@@ -272,6 +269,25 @@ sub curattr {
 		}
 	}
 	$self->_extra("stack")->[-1 - 2 * $i] || { }
+}
+
+sub _param_hash {
+	my ($self) = @_;
+	local $CGI::LIST_CONTEXT_WARN = 0; # more retrocompatible than multi_param()
+	my %s = ();
+	my $has_upload = 0;
+	foreach my $p ($self->param()) {
+		my @v = $self->param($p);
+		foreach (@v) {
+			ref $_ or next;
+			$_ = "$_";
+			_fix_utf8($_);
+			$has_upload++;
+		}
+		$s{$p} = \@v;
+	}
+	$self->_extra("has_upload", $has_upload);
+	\%s
 }
 
 sub _has_param {
