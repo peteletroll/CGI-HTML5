@@ -68,6 +68,12 @@ sub close {
 
 ### CGI.pm compatibility
 
+sub query_string {
+	my $self = shift;
+	$self->_extra("has_upload") or return $self->SUPER::query_string(@_);
+	CGI->new($self->_param_hash())->query_string()
+}
+
 sub start_html {
 	my $self = shift;
 	my ($title, $author, $base, $xbase, $script, $noscript, $target, $meta, $head, $style, $dtd, $lang, $encoding, $declare_xml, @other) =
@@ -617,8 +623,12 @@ sub _fix_utf8 {
 		defined $_ or next;
 		my $r = ref $_;
 		if ($r) {
-			# nothing
-			# maybe some file name fixing some day
+			if (UNIVERSAL::can($_, "_mp_filename")) {
+				my $o = $_->_mp_filename();
+				my $n = "$o";
+				_fix_utf8($n);
+				$n eq $o or $_->_mp_filename($n);
+			}
 		} else {
 			utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_);
 		}
