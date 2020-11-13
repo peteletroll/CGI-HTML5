@@ -12,8 +12,21 @@ use File::Temp qw(tempfile);
 
 use HTTP::Request::Common qw(POST);
 
+use Data::Dump qw(dump);
+use Devel::Peek;
+sub peek($) {
+	my $ret = "";
+	open(my $ORIGSTDERR, ">&", STDERR)
+		and close STDERR
+		and open STDERR, ">", \$ret
+		or die $!;
+	Dump($_[0]);
+	open STDERR, ">&=" . fileno($ORIGSTDERR)
+		or die $!;
+	return $ret;
+}
+
 my @tst = ("a", "\xe0", "\x{20ac}");
-# @tst = ("\xe0", "\x{20ac}");
 
 utf8::upgrade($_) foreach @tst;
 
@@ -26,11 +39,9 @@ sub _escape($) {
 	my ($s) = @_;
 	utf8::upgrade($s);
 	utf8::encode($s);
-	$s = CGI::escape($s);
+	$s =~ s{([^\w\-])}{ sprintf "%%%02X", ord($1) }ge;
 	$s
 }
-
-close STDIN or die "can't close STDIN: $!";
 
 local $| = 1;
 
@@ -70,22 +81,23 @@ foreach my $cnt (@tst) {
 					REQUEST_METHOD => "POST",
 					CONTENT_TYPE => $content_type,
 				);
+				close STDIN or die "can't close STDIN: $!";
 				open STDIN, "<:raw", $np or die "can't redirect STDIN: $!";
 				CGI::initialize_globals();
 				my $Q = CGI::HTML5->new();
-				close STDIN or die "can't close STDIN: $!";
 				$Q
 			};
 
-			use Data::Dump qw(dump);
+			local $CGI::LIST_CONTEXT_WARN = 0;
+
 			print "CGI ", dump($Q), "\n";
 			print "QUERY_STRING ", $Q->query_string(), "\n";
-			print "PARAM $nam ", dump($Q->param($nam)), "\n";
-			print "PARAM $nam ", dump($Q->param($nam) . ""), "\n";
+			# print "PARAM $nam ", dump($Q->param($nam)), "\n";
+			# print "PARAM $nam ", dump($Q->param($nam) . ""), "\n";
 
 			is($Q->query_string(), _escape($nam) . "=" . _escape($filename), "query string - $lbl");
-			is_deeply([ map { encode_utf8($_) } $Q->param() ], [ encode_utf8($nam) ], "param list - $lbl");
-			is(encode_utf8($Q->param($nam)), encode_utf8($filename), "param value - $lbl");
+			is_deeply([ $Q->param() ], [ $nam ], "param list - $lbl");
+			is($Q->param($nam), $filename, "param value - $lbl");
 
 			my $h = $Q->param($nam);
 			local $/ = undef;
