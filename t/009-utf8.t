@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 298;
+use Test::More tests => 705;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -14,13 +14,20 @@ sub _escape($) {
 	$s
 }
 
-my @tst = ("a", "\xe0", "\x{20ac}");
+sub _entities($) {
+	CGI::HTML5::_escape_text($_[0])->string()
+}
+
+my @tst = ("a", "&", "\xe0", "\x{20ac}");
 foreach my $name (@tst) {
 	my $uname = _escape($name);
+	my $hname = _entities($name);
 	foreach my $val1 (@tst) {
 		my $uval1 = _escape($val1);
+		my $hval1 = _entities($val1);
 		foreach my $val2 (@tst) {
 			my $uval2 = _escape($val2);
+			my $hval2 = _entities($val2);
 			my $qs = CGI::HTML5->new({ $name => [ $val1, $val2 ]})->query_string();
 			is($qs, "$uname=$uval1;$uname=$uval2", "query string value '$qs'");
 
@@ -34,24 +41,24 @@ foreach my $name (@tst) {
 			is(length($p), 1, "param() with utf8");
 
 			is_deeply($Q->hs(\"input", { name => $name }, $Q->sticky()),
-				"<input name=\"$name\" type=\"text\" value=\"$val1\">",
+				"<input name=\"$hname\" type=\"text\" value=\"$hval1\">",
 				"input tag");
 			is_deeply($Q->hs(\"input", { name => $name }, $Q->sticky()),
-				"<input name=\"$name\" type=\"text\" value=\"$val2\">",
+				"<input name=\"$hname\" type=\"text\" value=\"$hval2\">",
 				"input tag");
 			is_deeply($Q->hs(\"input", { name => $name }, $Q->sticky()),
-				"<input name=\"$name\" type=\"text\" value=\"\">",
+				"<input name=\"$hname\" type=\"text\" value=\"\">",
 				"input tag");
 
 			$Q = CGI::HTML5->new($qs);
 			is_deeply($Q->hs(\"textarea", { name => $name }, $Q->sticky()),
-				"<textarea name=\"$name\">$val1</textarea>",
+				"<textarea name=\"$hname\">$hval1</textarea>",
 				"textarea");
 			is_deeply($Q->hs(\"textarea", { name => $name }, $Q->sticky()),
-				"<textarea name=\"$name\">$val2</textarea>",
+				"<textarea name=\"$hname\">$hval2</textarea>",
 				"textarea");
 			is_deeply($Q->hs(\"textarea", { name => $name }, $Q->sticky()),
-				"<textarea name=\"$name\"></textarea>",
+				"<textarea name=\"$hname\"></textarea>",
 				"textarea");
 		}
 	}
