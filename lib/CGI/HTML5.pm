@@ -561,6 +561,33 @@ sub _attr($) {
 	$ret
 }
 
+### upload filename UTF-8 wrapper
+
+{
+	package CGI::File::Temp; # keep @ISA happy with old CGI.pm
+
+	package CGI::HTML5::Fh;
+	our @ISA = qw(CGI::File::Temp Fh);
+
+	use overload '""' => \&asString;
+
+	sub rebless {
+		my $fh = pop;
+		defined $fh
+			and grep { ref $fh eq $_ } @ISA
+			or return undef;
+		$fh->asString(); # force autoload if needed
+		bless $fh, __PACKAGE__
+	}
+
+	sub asString {
+		my ($self) = shift;
+		my $s = $self->SUPER::asString(@_);
+		CGI::HTML5::_fix_utf8($s);
+		$s
+	}
+}
+
 ### escaping utilities
 
 our %ENT = (
@@ -623,34 +650,8 @@ our $Fh_asString_orig = undef;
 sub _fix_utf8 {
 	foreach (@_) {
 		defined $_ or next;
-		my $r = ref $_;
-		if ($r) {
-			if (UNIVERSAL::can($_, "_mp_filename")) {
-				my $o = $_->_mp_filename();
-				my $n = "$o";
-				_fix_utf8($n);
-				$n eq $o or $_->_mp_filename($n);
-			} elsif ($r eq "Fh") {
-				if (!defined $Fh_asString_orig) {
-					$Fh_asString_orig = eval {
-						$_->asString(); # force AUTOLOAD if needed
-						\&Fh::asString
-					} || 0;
-					if ($Fh_asString_orig) {
-						no warnings "redefine";
-						*Fh::asString = sub {
-							my $ret = $Fh_asString_orig->(@_);
-							_fix_utf8($ret);
-							$ret
-						}
-					}
-				}
-			} else {
-				warn __PACKAGE__, ": unfixable reference '$r': ", $_, "\n";
-			}
-		} else {
-			utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_);
-		}
+		ref $_ and CGI::HTML5::Fh::rebless($_), next;
+		utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_);
 	}
 }
 
