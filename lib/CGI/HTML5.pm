@@ -377,12 +377,14 @@ our %PREFIX = (
 
 our %INNER_PREFIX = (
 	head => "\n" . _open_tag("meta", { charset => "utf-8" }) . "\n",
+	ol => "\n",
 	optgroup => "\n",
 	select => "\n",
 	table => "\n",
 	tbody => "\n",
 	thead => "\n",
 	tr => "\n",
+	ul => "\n",
 );
 
 our %SUFFIX = (
@@ -390,8 +392,10 @@ our %SUFFIX = (
 	div => "\n",
 	head => "\n",
 	html => "\n",
+	li => "\n",
 	link => "\n",
 	meta => "\n",
+	ol => "\n",
 	optgroup => "\n",
 	option => "\n",
 	p => "\n",
@@ -402,6 +406,7 @@ our %SUFFIX = (
 	thead => "\n",
 	title => "\n",
 	tr => "\n",
+	ul => "\n",
 );
 
 our %DEFAULT_ATTR = (
