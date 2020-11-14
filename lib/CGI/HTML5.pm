@@ -618,6 +618,8 @@ sub _fix_utf8_params {
 	}
 }
 
+our $Fh_asString_orig = undef;
+
 sub _fix_utf8 {
 	foreach (@_) {
 		defined $_ or next;
@@ -628,6 +630,23 @@ sub _fix_utf8 {
 				my $n = "$o";
 				_fix_utf8($n);
 				$n eq $o or $_->_mp_filename($n);
+			} elsif ($r eq "Fh") {
+				if (!defined $Fh_asString_orig) {
+					$Fh_asString_orig = eval {
+						$_->asString(); # force AUTOLOAD if needed
+						\&Fh::asString
+					} || 0;
+					if ($Fh_asString_orig) {
+						no warnings "redefine";
+						*Fh::asString = sub {
+							my $ret = $Fh_asString_orig->(@_);
+							_fix_utf8($ret);
+							$ret
+						}
+					}
+				}
+			} else {
+				warn __PACKAGE__, ": unfixable reference '$r': ", $_, "\n";
 			}
 		} else {
 			utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_);
