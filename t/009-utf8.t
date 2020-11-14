@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 271;
+use Test::More tests => 352;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -32,6 +32,7 @@ foreach my $name (@tst) {
 			is_deeply([ $Q->param($name) ], [ $val1, $val2 ], "param value check");
 			my $p = $Q->param($name);
 			is(length($p), 1, "param() with utf8");
+
 			is_deeply($Q->hs(\"input", { name => $name }, $Q->sticky()),
 				"<input name=\"$name\" type=\"text\" value=\"$val1\">",
 				"input tag");
@@ -41,6 +42,17 @@ foreach my $name (@tst) {
 			is_deeply($Q->hs(\"input", { name => $name }, $Q->sticky()),
 				"<input name=\"$name\" type=\"text\" value=\"\">",
 				"input tag");
+
+			$Q = CGI::HTML5->new($qs);
+			is_deeply($Q->hs(\"textarea", { name => $name }, $Q->sticky()),
+				"<textarea name=\"$name\">$val1</textarea>",
+				"textarea");
+			is_deeply($Q->hs(\"textarea", { name => $name }, $Q->sticky()),
+				"<textarea name=\"$name\">$val2</textarea>",
+				"textarea");
+			is_deeply($Q->hs(\"textarea", { name => $name }, $Q->sticky()),
+				"<textarea name=\"$name\"></textarea>",
+				"textarea");
 
 			is_deeply($Q->textfield(-name => $name),
 				"<input type=\"text\" name=\"$name\" value=\"$val1\">",

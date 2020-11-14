@@ -645,8 +645,6 @@ sub _fix_utf8_params {
 	}
 }
 
-our $Fh_asString_orig = undef;
-
 sub _fix_utf8 {
 	foreach (@_) {
 		defined $_ or next;
