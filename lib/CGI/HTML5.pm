@@ -423,6 +423,7 @@ sub _empty_element_generator($) {
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
+		my $flags = shift;
 		my $attr = undef;
 		while (ref $_[0] eq "HASH") {
 			$attr = shift;
@@ -439,6 +440,7 @@ sub _element_generator($) {
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
+		my $flags = shift;
 		my $attr = { };
 		my $open = undef;
 		my $close = _close_tag($elt) . $suffix;
@@ -499,6 +501,7 @@ sub _to_html {
 
 	my $elt = undef;
 	my $fun = undef;
+	my $flags = "";
 	my $attr = undef;
 	my @lst = @$obj;
 	my @ret = ();
@@ -506,9 +509,10 @@ sub _to_html {
 
 	if (@lst && ref $lst[0] eq "SCALAR") {
 		$elt = ${shift @lst};
+		$elt =~ s/([*]+)$// and $flags = $1;
 		$fun = $ELEMENT{$elt};
 		if (ref $fun ne "CODE") {
-			$ELEMENT{lc $elt} and croak "\"\Q$elt\E\" must be lower case";
+			$ELEMENT{lc $elt} and croak "\"$elt\" must be lower case";
 			croak "unknown element <$elt>";
 		}
 		my $d = $DEFAULT_ATTR{$elt};
@@ -539,7 +543,7 @@ sub _to_html {
 		push @ret, $self->_to_html($c);
 	}
 
-	$fun and return $fun->($self, @ret);
+	$fun and return $fun->($self, "", @ret);
 	_htmlstring(@ret)
 }
 
