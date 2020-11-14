@@ -459,7 +459,7 @@ sub _element_generator($) {
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
 		} else {
-			push @ret, undef;
+			push @ret, $prefix, undef, $inner_prefix;
 			foreach my $c (@_) {
 				my $r = ref $c;
 				if ($r eq "HASH") {
@@ -470,7 +470,7 @@ sub _element_generator($) {
 				push @ret, "$c";
 			}
 			push @ret, $close;
-			$ret[0] = _open_tag($elt, $attr);
+			$ret[1] = _open_tag($elt, $attr);
 			return _htmlstring(@ret)
 		}
 	}
