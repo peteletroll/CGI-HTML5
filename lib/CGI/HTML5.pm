@@ -442,22 +442,37 @@ sub _element_generator($) {
 		my $self = shift;
 		my $flags = shift;
 		my $attr = { };
-		my $open = undef;
 		my $close = _close_tag($elt) . $suffix;
 		my @ret = ();
-		foreach my $c (@_) {
-			my $r = ref $c;
-			if ($r eq "HASH") {
-				$attr = $c;
-				$open = undef;
-				next;
+		if ($flags =~ /\*/) {
+			my $open = undef;
+			foreach my $c (@_) {
+				my $r = ref $c;
+				if ($r eq "HASH") {
+					$attr = $c;
+					$open = undef;
+					next;
+				}
+				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
+				$open ||= _open_tag($elt, $attr);
+				push @ret, $prefix . $open . $inner_prefix . "$c" . $close;
 			}
-			$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
-			$open ||= _open_tag($elt, $attr);
-			push @ret, _htmlstring($prefix, $open, $inner_prefix, "$c", $close);
+			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
+		} else {
+			push @ret, undef;
+			foreach my $c (@_) {
+				my $r = ref $c;
+				if ($r eq "HASH") {
+					$attr = $c;
+					next;
+				}
+				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
+				push @ret, "$c";
+			}
+			push @ret, $close;
+			$ret[0] = _open_tag($elt, $attr);
+			return _htmlstring(@ret)
 		}
-		@ret or push @ret, _htmlstring($prefix, _open_tag($elt, $attr), $inner_prefix, $close);
-		wantarray ? @ret : _htmlstring(@ret)
 	}
 }
 
@@ -543,7 +558,7 @@ sub _to_html {
 		push @ret, $self->_to_html($c);
 	}
 
-	$fun and return $fun->($self, "", @ret);
+	$fun and return $fun->($self, $flags, @ret);
 	_htmlstring(@ret)
 }
 
