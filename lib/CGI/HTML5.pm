@@ -299,6 +299,7 @@ sub _param_hash {
 sub _has_param {
 	my ($self, $param) = @_;
 	my $s = $self->_extra("state");
+	defined $param or return scalar %$s;
 	defined $s->{$param}
 }
 
