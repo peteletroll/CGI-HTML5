@@ -195,6 +195,7 @@ sub script {
 our %INPUT_TEXT_LIKE = map { $_ => 1 } qw(
 	date datetime-local
 	email
+	hidden
 	month
 	number
 	search
