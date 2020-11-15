@@ -23,6 +23,7 @@ sub new {
 	$new->_fix_utf8_params();
 	$new->{$EXTRA} = { };
 	$new->_extra("stack", [ ]);
+	$new->_extra("sticky", [ ]);
 	$new->reset_form();
 	return $new;
 }
@@ -259,6 +260,7 @@ sub sticky {
 sub reset_form {
 	my ($self) = @_;
 	$self->_extra("state", $self->_param_hash());
+	$self->_extra("sticky", { });
 	$self
 }
 
@@ -398,6 +400,7 @@ our %SUFFIX = (
 	div => "\n",
 	head => "\n",
 	html => "\n",
+	input => \&_sticky_suffix,
 	li => "\n",
 	link => "\n",
 	meta => "\n",
@@ -405,6 +408,7 @@ our %SUFFIX = (
 	optgroup => "\n",
 	option => "\n",
 	p => "\n",
+	select => \&_sticky_suffix,
 	table => "\n",
 	tbody => "\n",
 	td => "\n",
@@ -414,6 +418,25 @@ our %SUFFIX = (
 	tr => "\n",
 	ul => "\n",
 );
+
+sub _sticky_suffix {
+	my ($self) = @_;
+	my $elt = $self->curelt();
+	my $attr = $self->curattr();
+	my $name = $attr->{name};
+	defined $name or return "";
+	my $sticky = undef;
+	if ($elt eq "select") {
+		$sticky = $elt;
+	} elsif ($elt eq "input") {
+		my $type = $attr->{type};
+		$type && ($type eq "checkbox" || $type eq "radio")
+			and $sticky = $type;
+	}
+	$sticky && !$self->_extra("sticky")->{"$sticky:$name"}++
+		and return _open_tag("input", { type => "hidden", name => ".$sticky", value => $name });
+	""
+}
 
 our %DEFAULT_ATTR = (
 	html => { lang => "en" },
@@ -434,7 +457,8 @@ sub _empty_element_generator($) {
 			$attr = shift;
 		}
 		@_ and croak "no content allowed in <$elt>";
-		_htmlstring($prefix, _open_tag($elt, $attr), $suffix)
+		_htmlstring($prefix, _open_tag($elt, $attr),
+			(ref $suffix eq "CODE" ? $suffix->($self) : $suffix))
 	}
 }
 
@@ -443,6 +467,7 @@ sub _element_generator($) {
 	my $prefix = $PREFIX{$elt} || "";
 	my $inner_prefix = $INNER_PREFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
+	my $sufcb = ref $suffix eq "CODE";
 	sub {
 		my $self = shift;
 		my $flags = shift;
@@ -460,7 +485,8 @@ sub _element_generator($) {
 				}
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
-				push @ret, $prefix . $open . $inner_prefix . "$c" . $close . $suffix;
+				push @ret, $prefix . $open . $inner_prefix . "$c" . $close
+					. ($sufcb ? $suffix->($self) : $suffix);
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
 		} else {
@@ -474,7 +500,7 @@ sub _element_generator($) {
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				push @ret, "$c";
 			}
-			push @ret, $close, $suffix;
+			push @ret, $close, ($sufcb ? $suffix->($self) : $suffix);
 			$ret[1] = _open_tag($elt, $attr);
 			return _htmlstring(@ret)
 		}
