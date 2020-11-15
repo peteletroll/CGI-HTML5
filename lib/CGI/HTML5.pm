@@ -242,8 +242,12 @@ sub sticky {
 		} elsif ($elt eq "option") {
 			my $name = $Q->curattr("select")->{name};
 			defined $name or croak "<$elt> needs outer <select> name attribute";
-			my $selected = $self->_has_value($name, $default, 1) ? \1 : \0;
-			$ret = { value => $default, selected => $selected };
+			my $value = $attr->{value};
+			defined $value or croak "<$elt> needs value attribute";
+			my $selected = $self->_has_param($name) ?
+				$Q->_has_value($name, $value, 1) :
+				$value eq $default;
+			$ret = { selected => ($selected ? \1 : \0) };
 		} else {
 			croak "value not allowed in <$elt>";
 		}
@@ -478,7 +482,8 @@ sub _element_generator($) {
 
 foreach my $elt (@ELEMENTLIST) {
 	$ELEMENT{$elt} ||= $EMPTY{$elt} ?
-		_empty_element_generator($elt) : _element_generator($elt)
+		_empty_element_generator($elt) :
+		_element_generator($elt)
 }
 
 ### main processing

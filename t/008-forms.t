@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -53,12 +53,24 @@ $Q->reset_form();
 is_deeply($Q->hs(\"select", { name => "a" }, [
 		[ \"optgroup", { label => "grp" },
 			[ \"option", { value => "a1" }, $Q->sticky("a1"), "Hi&Bye" ] ],
-		[ \"option", $Q->sticky("a2"), "a2" ],
-		[ \"option", $Q->sticky("a3"), "a3" ]
+		[ \"option", { value => "a2" }, $Q->sticky("a1"), "a2" ],
+		[ \"option", { value => "a3" }, $Q->sticky("a1"), "a3" ]
 	]),
 	"<select name=\"a\">\n<optgroup label=\"grp\">\n<option selected value=\"a1\">Hi&amp;Bye</option>\n"
 	. "</optgroup>\n"
 	. "<option selected value=\"a2\">a2</option>\n"
 	. "<option value=\"a3\">a3</option>\n"
+	. "</select>");
+
+is_deeply($Q->hs(\"select", { name => "c" }, [
+		[ \"optgroup", { label => "grp" },
+			[ \"option", { value => "c1" }, $Q->sticky("c1"), "Hi&Bye" ] ],
+		[ \"option", { value => "c2" }, $Q->sticky("c1"), "c2" ],
+		[ \"option", { value => "c3" }, $Q->sticky("c1"), "c3" ]
+	]),
+	"<select name=\"c\">\n<optgroup label=\"grp\">\n<option selected value=\"c1\">Hi&amp;Bye</option>\n"
+	. "</optgroup>\n"
+	. "<option value=\"c2\">c2</option>\n"
+	. "<option value=\"c3\">c3</option>\n"
 	. "</select>");
 
