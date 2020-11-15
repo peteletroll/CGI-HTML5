@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 25;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -43,10 +43,15 @@ is_deeply($Q->hs(\"input", { name => "a", type => "checkbox", value => "a2" }, $
 is_deeply($Q->hs(\"input", { name => "a", type => "checkbox", value => "a2" }, $Q->sticky("a1")),
 	"<input name=\"a\" type=\"checkbox\" value=\"a2\">");
 
-$Q->reset_form();
 is_deeply($Q->hs(\"input", { name => "c", type => "checkbox", value => "c1" }, $Q->sticky("c1")),
-	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
+	"<input name=\"c\" type=\"checkbox\" value=\"c1\">");
 is_deeply($Q->hs(\"input", { name => "c", type => "checkbox", value => "c2" }, $Q->sticky("c1")),
+	"<input name=\"c\" type=\"checkbox\" value=\"c2\">");
+
+my $Q0 = CGI::HTML5->new("");
+is_deeply($Q0->hs(\"input", { name => "c", type => "checkbox", value => "c1" }, $Q0->sticky("c1")),
+	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
+is_deeply($Q0->hs(\"input", { name => "c", type => "checkbox", value => "c2" }, $Q0->sticky("c1")),
 	"<input name=\"c\" type=\"checkbox\" value=\"c2\">");
 
 $Q->reset_form();
@@ -67,6 +72,18 @@ is_deeply($Q->hs(\"select", { name => "c" }, [
 			[ \"option", { value => "c1" }, $Q->sticky("c1"), "Hi&Bye" ] ],
 		[ \"option", { value => "c2" }, $Q->sticky("c1"), "c2" ],
 		[ \"option", { value => "c3" }, $Q->sticky("c1"), "c3" ]
+	]),
+	"<select name=\"c\">\n<optgroup label=\"grp\">\n<option value=\"c1\">Hi&amp;Bye</option>\n"
+	. "</optgroup>\n"
+	. "<option value=\"c2\">c2</option>\n"
+	. "<option value=\"c3\">c3</option>\n"
+	. "</select>");
+
+is_deeply($Q0->hs(\"select", { name => "c" }, [
+		[ \"optgroup", { label => "grp" },
+			[ \"option", { value => "c1" }, $Q0->sticky("c1"), "Hi&Bye" ] ],
+		[ \"option", { value => "c2" }, $Q0->sticky("c1"), "c2" ],
+		[ \"option", { value => "c3" }, $Q0->sticky("c1"), "c3" ]
 	]),
 	"<select name=\"c\">\n<optgroup label=\"grp\">\n<option selected value=\"c1\">Hi&amp;Bye</option>\n"
 	. "</optgroup>\n"
