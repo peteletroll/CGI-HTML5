@@ -35,7 +35,8 @@ is_deeply($Q->hs(\"textarea", { name => "a" }, $Q->sticky("default")),
 
 $Q->reset_form();
 is_deeply($Q->hs(\"input", { name => "a", type => "checkbox", value => "a1" }, $Q->sticky("a1")),
-	"<input checked name=\"a\" type=\"checkbox\" value=\"a1\">");
+	"<input checked name=\"a\" type=\"checkbox\" value=\"a1\">"
+	. "<input name=\".checkbox\" type=\"hidden\" value=\"a\">");
 is_deeply($Q->hs(\"input", { name => "a", type => "checkbox", value => "a1" }, $Q->sticky("a1")),
 	"<input name=\"a\" type=\"checkbox\" value=\"a1\">");
 is_deeply($Q->hs(\"input", { name => "a", type => "checkbox", value => "a2" }, $Q->sticky("a1")),
@@ -44,13 +45,15 @@ is_deeply($Q->hs(\"input", { name => "a", type => "checkbox", value => "a2" }, $
 	"<input name=\"a\" type=\"checkbox\" value=\"a2\">");
 
 is_deeply($Q->hs(\"input", { name => "c", type => "checkbox", value => "c1" }, $Q->sticky("c1")),
-	"<input name=\"c\" type=\"checkbox\" value=\"c1\">");
+	"<input name=\"c\" type=\"checkbox\" value=\"c1\">"
+	. "<input name=\".checkbox\" type=\"hidden\" value=\"c\">");
 is_deeply($Q->hs(\"input", { name => "c", type => "checkbox", value => "c2" }, $Q->sticky("c1")),
 	"<input name=\"c\" type=\"checkbox\" value=\"c2\">");
 
 my $Q0 = CGI::HTML5->new("");
 is_deeply($Q0->hs(\"input", { name => "c", type => "checkbox", value => "c1" }, $Q0->sticky("c1")),
-	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
+	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">"
+	. "<input name=\".checkbox\" type=\"hidden\" value=\"c\">");
 is_deeply($Q0->hs(\"input", { name => "c", type => "checkbox", value => "c2" }, $Q0->sticky("c1")),
 	"<input name=\"c\" type=\"checkbox\" value=\"c2\">");
 
@@ -65,7 +68,8 @@ is_deeply($Q->hs(\"select", { name => "a" }, [
 	. "</optgroup>\n"
 	. "<option selected value=\"a2\">a2</option>\n"
 	. "<option value=\"a3\">a3</option>\n"
-	. "</select>");
+	. "</select>"
+	. "<input name=\".select\" type=\"hidden\" value=\"a\">");
 
 is_deeply($Q->hs(\"select", { name => "c" }, [
 		[ \"optgroup", { label => "grp" },
@@ -77,7 +81,8 @@ is_deeply($Q->hs(\"select", { name => "c" }, [
 	. "</optgroup>\n"
 	. "<option value=\"c2\">c2</option>\n"
 	. "<option value=\"c3\">c3</option>\n"
-	. "</select>");
+	. "</select>"
+	. "<input name=\".select\" type=\"hidden\" value=\"c\">");
 
 is_deeply($Q0->hs(\"select", { name => "c" }, [
 		[ \"optgroup", { label => "grp" },
@@ -89,5 +94,6 @@ is_deeply($Q0->hs(\"select", { name => "c" }, [
 	. "</optgroup>\n"
 	. "<option value=\"c2\">c2</option>\n"
 	. "<option value=\"c3\">c3</option>\n"
-	. "</select>");
+	. "</select>"
+	. "<input name=\".select\" type=\"hidden\" value=\"c\">");
 
