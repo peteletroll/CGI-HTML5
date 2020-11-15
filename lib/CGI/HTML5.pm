@@ -447,7 +447,7 @@ sub _element_generator($) {
 		my $self = shift;
 		my $flags = shift;
 		my $attr = { };
-		my $close = _close_tag($elt) . $suffix;
+		my $close = _close_tag($elt);
 		my @ret = ();
 		if ($flags =~ /\*/) {
 			my $open = undef;
@@ -460,7 +460,7 @@ sub _element_generator($) {
 				}
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
-				push @ret, $prefix . $open . $inner_prefix . "$c" . $close;
+				push @ret, $prefix . $open . $inner_prefix . "$c" . $close . $suffix;
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
 		} else {
@@ -474,7 +474,7 @@ sub _element_generator($) {
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				push @ret, "$c";
 			}
-			push @ret, $close;
+			push @ret, $close, $suffix;
 			$ret[1] = _open_tag($elt, $attr);
 			return _htmlstring(@ret)
 		}
