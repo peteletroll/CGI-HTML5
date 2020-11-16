@@ -232,7 +232,7 @@ sub sticky {
 			} elsif ($INPUT_CHECKABLE{$type}) {
 				my $value = $attr->{value};
 				defined $value or croak "<$elt type=\"$type\"> needs value attribute";
-				my $checked = $self->_has_param($name) || $self->{".fieldnames"}{$name} ?
+				my $checked = $self->_has_param($name) || $self->_has_sticky($name) ?
 					$Q->_has_value($name, $value, 1) :
 					$value eq $default;
 				$ret = { checked => ($checked ? \1 : \0) };
@@ -248,7 +248,7 @@ sub sticky {
 			defined $name or croak "<$elt> needs outer <select> name attribute";
 			my $value = $attr->{value};
 			defined $value or croak "<$elt> needs value attribute";
-			my $selected = $self->_has_param($name) || $self->{".fieldnames"}{$name} ?
+			my $selected = $self->_has_param($name) || $self->_has_sticky($name) ?
 				$Q->_has_value($name, $value, 1) :
 				$value eq $default;
 			$ret = { selected => ($selected ? \1 : \0) };
@@ -306,10 +306,18 @@ sub _param_hash {
 }
 
 sub _has_param {
-	my ($self, $param) = @_;
+	my ($self, $name) = @_;
 	my $s = $self->_extra("state");
-	defined $param or return scalar %$s;
-	defined $s->{$param}
+	defined $name or return scalar %$s;
+	defined $s->{$name}
+}
+
+sub _has_sticky {
+	my ($self, $name) = @_;
+	$self->_extra("sticky")->{$name} and return 1;
+	my $f = $self->{".fieldnames"};
+	ref $f eq "HASH" && $f->{$name} and return 1;
+	return 0;
 }
 
 sub _has_value {
