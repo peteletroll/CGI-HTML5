@@ -23,7 +23,7 @@ sub new {
 	$new->_fix_utf8_params();
 	$new->{$EXTRA} = { };
 	$new->_extra("stack", [ ]);
-	$new->_extra("sticky", [ ]);
+	$new->_extra("sticky", { });
 	$new->reset_form();
 	return $new;
 }
@@ -228,12 +228,10 @@ sub sticky {
 			} elsif ($INPUT_CHECKABLE{$type}) {
 				my $value = $attr->{value};
 				defined $value or croak "<$elt type=\"$type\"> needs value attribute";
-				my $checked = $self->_has_param() ?
+				my $checked = $self->_has_param($name) || $self->_has_value(".cgifields", $name, 0) ?
 					$Q->_has_value($name, $value, 1) :
 					$value eq $default;
-				$ret = {
-					checked => ($checked ? \1 : \0)
-				};
+				$ret = { checked => ($checked ? \1 : \0) };
 			} else {
 				croak "value not allowed in <$elt type=\"$type\">";
 			}
@@ -246,7 +244,7 @@ sub sticky {
 			defined $name or croak "<$elt> needs outer <select> name attribute";
 			my $value = $attr->{value};
 			defined $value or croak "<$elt> needs value attribute";
-			my $selected = $self->_has_param() ?
+			my $selected = $self->_has_param($name) ?
 				$Q->_has_value($name, $value, 1) :
 				$value eq $default;
 			$ret = { selected => ($selected ? \1 : \0) };
@@ -426,16 +424,21 @@ sub _sticky_suffix {
 	my $name = $attr->{name};
 	defined $name or return "";
 	my $sticky = undef;
-	if ($elt eq "select") {
-		$sticky = $elt;
+	if ($elt eq "select" && _bool($attr->{multiple})) {
+		$sticky = $name;
 	} elsif ($elt eq "input") {
-		my $type = $attr->{type};
-		$type && ($type eq "checkbox" || $type eq "radio")
-			and $sticky = $type;
+		my $type = $attr->{type} || "";
+		$type eq "checkbox" || $type eq "radio"
+			and $sticky = $name;
 	}
-	$sticky && !$self->_extra("sticky")->{"$sticky:$name"}++
-		and return _open_tag("input", { type => "hidden", name => ".$sticky", value => $name });
+	$sticky && !$self->_extra("sticky")->{$sticky}++
+		and return _open_tag("input", { type => "hidden", name => ".cgifields", value => $name });
 	""
+}
+
+sub _bool($) {
+	my ($v) = @_;
+	ref $v eq "SCALAR" ? $$v : $v
 }
 
 our %DEFAULT_ATTR = (
@@ -610,7 +613,7 @@ sub _attr($) {
 		defined $v or next;
 		$n =~ /[\s<>&'"=\/]/ and croak "unsafe attribute name '$n'";
 		if (ref $v eq "SCALAR") {
-			$$v and $ret .= " $n";
+			_bool($v) and $ret .= " $n";
 		} else {
 			$ret .= " $n=\"" . _escape_attr($v) . "\"";
 		}
