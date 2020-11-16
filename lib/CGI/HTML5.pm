@@ -72,7 +72,11 @@ sub close {
 sub query_string {
 	my $self = shift;
 	$self->_extra("has_upload") or return $self->SUPER::query_string(@_);
-	CGI->new($self->_param_hash())->query_string()
+	my $ph = $self->_param_hash();
+	foreach my $a (keys %{$self->_extra("sticky")}) {
+		push @{$ph->{".cgifields"}}, $a;
+	}
+	CGI->new($ph)->query_string()
 }
 
 sub start_html {
