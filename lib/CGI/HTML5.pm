@@ -232,7 +232,7 @@ sub sticky {
 			} elsif ($INPUT_CHECKABLE{$type}) {
 				my $value = $attr->{value};
 				defined $value or croak "<$elt type=\"$type\"> needs value attribute";
-				my $checked = $self->_has_param($name) || $self->_has_value(".cgifields", $name, 0) ?
+				my $checked = $self->_has_param($name) || $self->{".fieldnames"}{$name} ?
 					$Q->_has_value($name, $value, 1) :
 					$value eq $default;
 				$ret = { checked => ($checked ? \1 : \0) };
@@ -248,7 +248,7 @@ sub sticky {
 			defined $name or croak "<$elt> needs outer <select> name attribute";
 			my $value = $attr->{value};
 			defined $value or croak "<$elt> needs value attribute";
-			my $selected = $self->_has_param($name) ?
+			my $selected = $self->_has_param($name) || $self->{".fieldnames"}{$name} ?
 				$Q->_has_value($name, $value, 1) :
 				$value eq $default;
 			$ret = { selected => ($selected ? \1 : \0) };
