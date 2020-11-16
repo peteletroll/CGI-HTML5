@@ -314,7 +314,6 @@ sub _has_param {
 
 sub _has_sticky {
 	my ($self, $name) = @_;
-	$self->_extra("sticky")->{$name} and return 1;
 	my $f = $self->{".fieldnames"};
 	ref $f eq "HASH" && $f->{$name} and return 1;
 	return 0;
@@ -335,7 +334,7 @@ sub _has_value {
 sub _get_value {
 	my ($self, $param, $default, $remove) = @_;
 	my $s = $self->_extra("state");
-	my $values = $s->{$param} or return undef;
+	my $values = $s->{$param} or return $default;
 	@$values ? ($remove ? shift @$values : $values->[0]) : $default
 }
 
@@ -454,8 +453,9 @@ sub _bool($) {
 }
 
 our %DEFAULT_ATTR = (
-	html => { lang => "en" },
 	form => { method => "get", enctype => "multipart/form-data" },
+	html => { lang => "en" },
+	input => { type => "text" },
 );
 
 our %ELEMENT = ();
