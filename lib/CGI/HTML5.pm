@@ -750,12 +750,12 @@ CGI::HTML5 - CGI.pm HTML5 extension
   # <h1>Tips &amp; Tricks</h1>
 
   # repeated tag generation
-  print $q->hs(\"p", "A paragraph.", "Another paragraph.");
+  print $q->hs(\"p*", "A paragraph.", "Another paragraph.");
   # <p>A paragraph.</p>
   # <p>Another paragraph.</p>
 
   # disable repeated tag generation
-  print $q->hs(\"p", [ "A paragraph.", "The same paragraph." ]);
+  print $q->hs(\"p*", [ "A paragraph.", "The same paragraph." ]);
   # <p>A paragraph.The same paragraph.</p>
 
   # nested tag generation
