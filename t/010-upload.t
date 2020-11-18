@@ -79,7 +79,9 @@ foreach my $cnt (@tst) {
 				local %ENV = (
 					GATEWAY_INTERFACE => "CGI/1.1",
 					REQUEST_METHOD => "POST",
+					HTTP_USER_AGENT => "CGI::HTML5 test",
 					CONTENT_TYPE => $content_type,
+					CONTENT_LENGTH => -s $np
 				);
 				close STDIN or die "can't close STDIN: $!";
 				open STDIN, "<:raw", $np or die "can't redirect STDIN: $!";
