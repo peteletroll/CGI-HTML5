@@ -675,6 +675,7 @@ our %ENT = (
 	use overload fallback => 0,
 		'""' => \&string,
 		'bool' => \&string,
+		'!' => sub { !$_[0]->string() },
 		'.' => sub {
 			my ($self, $other, $swap) = @_;
 			ref $other eq __PACKAGE__ or $other = CGI::HTML5::_escape_text($other);
