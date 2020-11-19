@@ -452,6 +452,10 @@ sub _bool($) {
 	ref $v eq "SCALAR" ? $$v : $v
 }
 
+sub _iscode($) {
+	UNIVERSAL::isa($_[0], "CODE")
+}
+
 our %DEFAULT_ATTR = (
 	form => { method => "get", enctype => "multipart/form-data" },
 	html => { lang => "en" },
@@ -473,7 +477,7 @@ sub _empty_element_generator($) {
 		}
 		@_ and croak "no content allowed in <$elt>";
 		_htmlstring($prefix, _open_tag($elt, $attr),
-			(ref $suffix eq "CODE" ? $suffix->($self) : $suffix))
+			(_iscode($suffix) ? $suffix->($self) : $suffix))
 	}
 }
 
@@ -482,7 +486,7 @@ sub _element_generator($) {
 	my $prefix = $PREFIX{$elt} || "";
 	my $inner_prefix = $INNER_PREFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
-	my $sufcb = ref $suffix eq "CODE";
+	my $sufcb = _iscode($suffix);
 	sub {
 		my $self = shift;
 		my $flags = shift;
@@ -573,7 +577,7 @@ sub _to_html {
 		$elt = ${shift @lst};
 		$elt =~ s/([*]+)$// and $flags = $1;
 		$fun = $ELEMENT{$elt};
-		if (ref $fun ne "CODE") {
+		if (!_iscode($fun)) {
 			$ELEMENT{lc $elt} and croak "\"$elt\" must be lower case";
 			croak "unknown element <$elt>";
 		}
@@ -585,11 +589,11 @@ sub _to_html {
 	while (@lst) {
 		my $c = shift @lst;
 		defined $c or next;
-		my $r = ref $c;
-		if ($r eq "CODE") {
+		if (_iscode($c)) {
 			unshift @lst, ($c->($self));
 			next;
 		}
+		my $r = ref $c;
 		if ($r eq "SCALAR") {
 			unshift @lst, $c;
 			@lst = $self->_to_html(\@lst);
