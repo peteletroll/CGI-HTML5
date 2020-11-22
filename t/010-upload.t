@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 109;
 BEGIN { use_ok('CGI::HTML5') };
 
 #########################
@@ -11,20 +11,6 @@ use Encode;
 use File::Temp qw(tempfile);
 
 use HTTP::Request::Common qw(POST);
-
-use Data::Dump qw(dump);
-use Devel::Peek;
-sub peek($) {
-	my $ret = "";
-	open(my $ORIGSTDERR, ">&", STDERR)
-		and close STDERR
-		and open STDERR, ">", \$ret
-		or die $!;
-	Dump($_[0]);
-	open STDERR, ">&=" . fileno($ORIGSTDERR)
-		or die $!;
-	return $ret;
-}
 
 my @tst = ("a", "\xe0", "\x{20ac}");
 
@@ -71,7 +57,7 @@ foreach my $cnt (@tst) {
 				Content_Type => $content_type,
 				Content => [ encode_utf8($nam) => [ $nf ] ]
 			)->content();
-			print "-" x 20, "\n", $post, "-" x 20, "\n";
+			# print "-" x 20, "\n", $post, "-" x 20, "\n";
 			print $hp $post;
 			close $hp;
 
@@ -92,11 +78,6 @@ foreach my $cnt (@tst) {
 
 			local $CGI::LIST_CONTEXT_WARN = 0;
 
-			print "CGI ", dump($Q), "\n";
-			print "QUERY_STRING ", $Q->query_string(), "\n";
-			# print "PARAM $nam ", dump($Q->param($nam)), "\n";
-			# print "PARAM $nam ", dump($Q->param($nam) . ""), "\n";
-
 			is($Q->query_string(), _escape($nam) . "=" . _escape($filename), "query string - $lbl");
 			is_deeply([ $Q->param() ], [ $nam ], "param list - $lbl");
 			is($Q->param($nam), $filename, "param value - $lbl");
@@ -108,6 +89,4 @@ foreach my $cnt (@tst) {
 		}
 	}
 }
-
-done_testing();
 
