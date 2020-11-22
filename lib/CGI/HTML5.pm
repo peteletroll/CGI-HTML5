@@ -23,7 +23,6 @@ sub new {
 	$new->_fix_utf8_params();
 	$new->{$EXTRA} = { };
 	$new->_extra("stack", [ ]);
-	$new->_extra("sticky", { });
 	$new->reset_form();
 	return $new;
 }
