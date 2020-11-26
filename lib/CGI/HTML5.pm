@@ -713,6 +713,14 @@ sub _escape_attr($) {
 
 sub _fix_utf8_params {
 	my ($self) = @_;
+
+	my $path_info = $self->path_info();
+	if ($path_info) {
+		my $n = $path_info;
+		_fix_utf8($n);
+		$path_info eq $n or $self->path_info($n);
+	}
+
 	my $param = $self->{param} || $self;
 	foreach (@{$self->{".parameters"} || [ ]}) {
 		my $o = $_;
