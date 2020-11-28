@@ -404,6 +404,7 @@ our %INNER_PREFIX = (
 );
 
 our %SUFFIX = (
+	base => "\n",
 	body => "\n",
 	div => "\n",
 	head => "\n",
