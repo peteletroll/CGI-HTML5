@@ -23,6 +23,7 @@ sub new {
 	$new->_fix_utf8_params();
 	$new->{$EXTRA} = { };
 	$new->_extra("stack", [ ]);
+	$new->_extra("ascii", 0);
 	$new->reset_form();
 	return $new;
 }
@@ -35,7 +36,9 @@ sub htmlstring { &hs }
 
 sub hs {
 	my $self = shift;
-	scalar $self->_to_html(\@_)
+	my $ret = $self->_to_html(\@_);
+	$self->ascii() and $ret->to_ascii();
+	$ret
 }
 
 sub comment {
@@ -64,6 +67,13 @@ sub open {
 sub close {
 	my ($self, $tag) = @_;
 	_htmlstring(_close_tag($tag))
+}
+
+sub ascii {
+       @_ > 1 ?
+               $_[0]->_extra("ascii", $_[1]) :
+               $_[0]->_extra("ascii")
+
 }
 
 ### CGI.pm compatibility
@@ -691,6 +701,10 @@ our %ENT = (
 			$$self .= $$other;
 			$self
 		};
+
+	sub to_ascii($) {
+		${$_[0]} =~ s{([\x{80}-\x{10ffff}])}{ sprintf("&#x%x;", ord($1)) }ges;
+	}
 
 	sub string { ${$_[0]} }
 }
