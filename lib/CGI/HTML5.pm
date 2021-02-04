@@ -118,35 +118,35 @@ sub start_html {
 	defined $noscript and push @head, [ \"noscript", $noscript ];
 	my $headstr = $self->hs(\"head", \@head);
 	my $other = @other ? " @other" : "";
-	_htmlstring($DOCTYPE . "\n"
+	$DOCTYPE . "\n"
 		. _open_tag(html => { lang => ($lang || "en-US") })
 		. "\n"
 		. "$headstr"
-		. "<body$other>")
+		. "<body$other>"
 }
 
-sub end_html { _htmlstring("</body></html>\n") }
+sub end_html { "</body></html>\n" }
 
 sub start_form {
 	my $self = shift;
 	$self->reset_form();
-	_htmlstring($self->SUPER::start_form(@_))
+	$self->SUPER::start_form(@_)
 }
 
 sub end_form {
 	my $self = shift;
-	_htmlstring($self->SUPER::end_form(@_))
+	$self->SUPER::end_form(@_)
 }
 
 sub start_multipart_form {
 	my $self = shift;
 	$self->reset_form();
-	_htmlstring($self->SUPER::start_multipart_form(@_))
+	$self->SUPER::start_multipart_form(@_)
 }
 
 sub end_multipart_form {
 	my $self = shift;
-	_htmlstring($self->SUPER::end_multipart_form(@_))
+	$self->SUPER::end_multipart_form(@_)
 }
 
 sub script_name {
@@ -357,7 +357,7 @@ sub _extra {
 sub _open_tag($$);
 
 # from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-our @ELEMENTLIST = qw(
+our @ELEMENTS = qw(
 	a abbr address area article aside audio
 	b base bdi bdo blockquote body br button
 	canvas caption cite code col colgroup
@@ -536,7 +536,7 @@ sub _element_generator($) {
 	}
 }
 
-foreach my $elt (@ELEMENTLIST) {
+foreach my $elt (@ELEMENTS) {
 	$ELEMENT{$elt} ||= $EMPTY{$elt} ?
 		_empty_element_generator($elt) :
 		_element_generator($elt)
