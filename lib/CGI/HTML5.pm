@@ -118,11 +118,13 @@ sub start_html {
 	defined $noscript and push @head, [ \"noscript", $noscript ];
 	my $headstr = $self->hs(\"head", \@head);
 	my $other = @other ? " @other" : "";
-	$DOCTYPE . "\n"
+	my $ret = $DOCTYPE . "\n"
 		. _open_tag(html => { lang => ($lang || "en-US") })
 		. "\n"
 		. "$headstr"
-		. "<body$other>"
+		. "<body$other>";
+	$self->ascii() and _to_ascii($ret);
+	$ret
 }
 
 sub end_html { "</body></html>\n" }
@@ -130,23 +132,31 @@ sub end_html { "</body></html>\n" }
 sub start_form {
 	my $self = shift;
 	$self->reset_form();
-	$self->SUPER::start_form(@_)
+	my $ret = $self->SUPER::start_form(@_);
+	$self->ascii() and _to_ascii($ret);
+	$ret
 }
 
 sub end_form {
 	my $self = shift;
-	$self->SUPER::end_form(@_)
+	my $ret = $self->SUPER::end_form(@_);
+	$self->ascii() and _to_ascii($ret);
+	$ret
 }
 
 sub start_multipart_form {
 	my $self = shift;
 	$self->reset_form();
-	$self->SUPER::start_multipart_form(@_)
+	my $ret = $self->SUPER::start_multipart_form(@_);
+	$self->ascii() and _to_ascii($ret);
+	$ret
 }
 
 sub end_multipart_form {
 	my $self = shift;
-	$self->SUPER::end_multipart_form(@_)
+	my $ret = $self->SUPER::end_multipart_form(@_);
+	$self->ascii() and _to_ascii($ret);
+	$ret
 }
 
 sub script_name {
@@ -703,7 +713,7 @@ our %ENT = (
 		};
 
 	sub to_ascii($) {
-		${$_[0]} =~ s{([\x{80}-\x{10ffff}])}{ sprintf("&#x%x;", ord($1)) }ges;
+		goto &CGI::HTML5::_to_ascii
 	}
 
 	sub string { ${$_[0]} }
@@ -746,6 +756,10 @@ sub _fix_utf8 {
 		ref $_ and CGI::HTML5::Fh::rebless($_), next;
 		utf8::is_utf8($_) || utf8::decode($_) || utf8::upgrade($_);
 	}
+}
+
+sub _to_ascii($) {
+	$_[0] =~ s{([\x{80}-\x{10ffff}])}{ sprintf("&#x%x;", ord($1)) }ges;
 }
 
 1;
