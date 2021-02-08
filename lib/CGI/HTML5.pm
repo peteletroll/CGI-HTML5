@@ -469,7 +469,7 @@ sub _sticky_suffix {
 
 sub _bool($) {
 	my ($v) = @_;
-	ref $v eq "SCALAR" ? $$v : $v
+	UNIVERSAL::isa($v, "SCALAR") ? $$v : $v
 }
 
 sub _iscode($) {
