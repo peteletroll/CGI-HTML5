@@ -6,7 +6,6 @@ use warnings;
 use Carp;
 
 use CGI qw(-noxhtml);
-binmode STDOUT, ":utf8";
 
 our @ISA = qw(CGI);
 
