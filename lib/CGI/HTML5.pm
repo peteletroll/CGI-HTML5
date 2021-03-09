@@ -89,7 +89,10 @@ sub start_html {
 		CGI::rearrange([qw(TITLE AUTHOR BASE XBASE SCRIPT NOSCRIPT TARGET META HEAD STYLE DTD LANG ENCODING DECLARE_XML)], @_);
 	my @head = ();
 	defined $title and push @head, [ \"title", $title ];
-	defined $author and push @head, [ \"link", { rev => "made", href => "mailto:$author" } ];
+	if (defined $author) {
+		_fix_utf8($author);
+		push @head, [ \"link", { rev => "made", href => "mailto:" . $self->escape($author) } ];
+	}
 	($base || $xbase || $target) and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
 	ref $meta eq "HASH" and push @head, map { [ \"meta", { name => $_, content => $meta->{$_} } ] } sort keys %$meta;
 	defined $head and push @head, $self->hs($head);
