@@ -91,7 +91,7 @@ sub start_html {
 	defined $title and push @head, [ \"title", $title ];
 	if (defined $author) {
 		_fix_utf8($author);
-		push @head, [ \"link", { rev => "made", href => "mailto:" . $self->escape($author) } ];
+		push @head, [ \"link", { rev => "made", href => "mailto:" . _escape_url($author) } ];
 	}
 	($base || $xbase || $target) and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
 	ref $meta eq "HASH" and push @head, map { [ \"meta", { name => $_, content => $meta->{$_} } ] } sort keys %$meta;
@@ -684,14 +684,6 @@ sub _attr($) {
 
 ### escaping utilities
 
-our %ENT = (
-	"<" => "&lt;",
-	">" => "&gt;",
-	"&" => "&amp;",
-	"\"" => "&quot;",
-	"\xa0" => "&nbsp;",
-);
-
 {
 	package CGI::HTML5::HTMLString;
 	use overload fallback => 0,
@@ -722,6 +714,14 @@ sub _htmlstring(@) {
 	bless \CORE::join("", @_), "CGI::HTML5::HTMLString"
 }
 
+our %ENT = (
+	"<" => "&lt;",
+	">" => "&gt;",
+	"&" => "&amp;",
+	"\"" => "&quot;",
+	"\xa0" => "&nbsp;",
+);
+
 sub _escape_text($) {
 	my ($s) = @_;
 	$s =~ s{([<>&\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
@@ -731,6 +731,16 @@ sub _escape_text($) {
 sub _escape_attr($) {
 	my ($s) = @_;
 	$s =~ s{([<>&'"\x00-\x1f\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	$s
+}
+
+our %ESC = (" " => "+");
+
+sub _escape_url($) {
+	my ($s) = @_;
+	_fix_utf8($s);
+	utf8::encode($s);
+	$s =~ s{([^0-9A-Za-z_.~\-])}{ $ESC{$1} ||= sprintf "%%%02x", ord($1) }ges;
 	$s
 }
 
