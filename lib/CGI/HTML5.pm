@@ -93,7 +93,8 @@ sub start_html {
 		_fix_utf8($author);
 		push @head, [ \"link", { rev => "made", href => "mailto:" . _escape_url($author) } ];
 	}
-	($base || $xbase || $target) and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
+	($base || defined $xbase || defined $target)
+		and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
 	ref $meta eq "HASH" and push @head, map { [ \"meta", { name => $_, content => $meta->{$_} } ] } sort keys %$meta;
 	defined $head and push @head, $self->hs($head);
 
