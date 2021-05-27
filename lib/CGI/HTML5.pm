@@ -88,6 +88,11 @@ sub start_html {
 	my ($title, $author, $base, $xbase, $script, $noscript, $target, $meta, $head, $style, $dtd, $lang, $encoding, $declare_xml, @other) =
 		CGI::rearrange([qw(TITLE AUTHOR BASE XBASE SCRIPT NOSCRIPT TARGET META HEAD STYLE DTD LANG ENCODING DECLARE_XML)], @_);
 	my @head = ();
+	push @head, [ \"meta", { charset => "utf-8" } ];
+	ref $meta eq "HASH" and push @head,
+		map { [ \"meta", { name => $_, content => $meta->{$_} } ] }
+		grep { $_ ne "charset" && defined $meta->{$_} }
+		sort keys %$meta;
 	defined $title and push @head, [ \"title", $title ];
 	if (defined $author) {
 		_fix_utf8($author);
@@ -95,7 +100,6 @@ sub start_html {
 	}
 	($base || defined $xbase || defined $target)
 		and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
-	ref $meta eq "HASH" and push @head, map { [ \"meta", { name => $_, content => $meta->{$_} } ] } sort keys %$meta;
 	defined $head and push @head, $self->hs($head);
 
 	if (defined $script) {
@@ -411,7 +415,7 @@ our %PREFIX = (
 );
 
 our %INNER_PREFIX = (
-	head => "\n" . _open_tag("meta", { charset => "utf-8" }) . "\n",
+	head => "\n",
 	ol => "\n",
 	optgroup => "\n",
 	select => "\n",
