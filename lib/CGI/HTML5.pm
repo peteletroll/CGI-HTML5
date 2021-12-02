@@ -816,6 +816,12 @@ CGI::HTML5 - CGI.pm HTML5 extension
   print $q->hs("This is a ", [ \"a", { href => "tgt.cgi?a=1&b=2" }, "link" ], ".");
   # This is a <a href="tgt.cgi?a=1&amp;b=2">link</a>.
 
+  # low level tag generation
+  print $q->open("a", href => "index.html");
+  # <a href="index.html">
+  print $q->close("a");
+  # </a>
+
   print $q->end_html();
 
 =head1 DESCRIPTION
