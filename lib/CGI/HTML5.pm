@@ -13,7 +13,7 @@ our $VERSION = '0.01';
 
 our $EXTRA = "{" . __PACKAGE__ . "}";
 
-our $DOCTYPE = "<!doctype html>";
+our $DOCTYPE = "<!DOCTYPE html>";
 
 sub new {
 	my $pkg = shift;
@@ -96,7 +96,7 @@ sub start_html {
 	defined $title and push @head, [ \"title", $title ];
 	if (defined $author) {
 		_fix_utf8($author);
-		push @head, [ \"link", { rev => "made", href => "mailto:" . _escape_url($author) } ];
+		push @head, [ \"link", { rel => "author", href => "mailto:" . _escape_url($author) } ];
 	}
 	($base || defined $xbase || defined $target)
 		and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
