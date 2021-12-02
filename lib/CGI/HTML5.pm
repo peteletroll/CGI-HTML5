@@ -498,6 +498,7 @@ sub _empty_element_generator($) {
 		while (ref $_[0] eq "HASH") {
 			$attr = shift;
 		}
+		$flags and croak "flag \"$flags\" not allowed for <$elt>";
 		@_ and croak "no content allowed in <$elt>";
 		_htmlstring($prefix, _open_tag($elt, $attr),
 			(_iscode($suffix) ? $suffix->($self) : $suffix))
