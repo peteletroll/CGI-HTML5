@@ -15,6 +15,9 @@ our $EXTRA = "{" . __PACKAGE__ . "}";
 
 our $DOCTYPE = "<!DOCTYPE html>";
 
+our $VALID_TAG = qr/^[0-9A-Za-z:\-]+$/;
+our $VALID_ATTR = qr/^[^\s<>&'"=\/]+$/;
+
 sub new {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
@@ -54,6 +57,7 @@ sub literal {
 
 sub open {
 	my ($self, $tag, %attr) = @_;
+	$tag =~ $VALID_TAG or croak "unallowed tag name '$tag'";
 	my $def = $CGI::HTML5::DEFAULT_ATTR{$tag};
 	$def and %attr = (%$def, %attr);
 	_htmlstring(_open_tag($tag, \%attr))
@@ -61,6 +65,7 @@ sub open {
 
 sub close {
 	my ($self, $tag) = @_;
+	$tag =~ $VALID_TAG or croak "unallowed tag name '$tag'";
 	_htmlstring(_close_tag($tag))
 }
 
@@ -498,7 +503,7 @@ sub _empty_element_generator($) {
 		while (ref $_[0] eq "HASH") {
 			$attr = shift;
 		}
-		$flags and croak "flag \"$flags\" not allowed for <$elt>";
+		$flags and croak "flag '$flags' not allowed for <$elt>";
 		@_ and croak "no content allowed in <$elt>";
 		_htmlstring($prefix, _open_tag($elt, $attr),
 			(_iscode($suffix) ? $suffix->($self) : $suffix))
@@ -602,7 +607,7 @@ sub _to_html {
 		$elt =~ s/([*]+)$// and $flags = $1;
 		$fun = $ELEMENT{$elt};
 		if (!_iscode($fun)) {
-			$ELEMENT{lc $elt} and croak "\"$elt\" must be lower case";
+			$ELEMENT{lc $elt} and croak "'$elt' must be lower case";
 			croak "unknown element <$elt>";
 		}
 		my $d = $DEFAULT_ATTR{$elt};
@@ -651,7 +656,7 @@ sub _attr($) {
 		$n =~ /^-/ and next;
 		my $v = $a->{$n};
 		defined $v or next;
-		$n =~ /[\s<>&'"=\/]/ and croak "unsafe attribute name '$n'";
+		$n =~ $VALID_ATTR or croak "unallowed attribute name '$n'";
 		if (ref $v eq "SCALAR") {
 			_bool($v) and $ret .= " $n";
 		} else {
