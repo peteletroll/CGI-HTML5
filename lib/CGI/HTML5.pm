@@ -469,9 +469,8 @@ sub _sticky_suffix {
 		$type eq "checkbox" || $type eq "radio"
 			and $sticky = $name;
 	}
-	$sticky && !$CGI::NOSTICKY && !$self->_extra("sticky")->{$sticky}++ ?
-		_open_tag("input", { type => "hidden", name => ".cgifields", value => $name }) :
-		""
+	$sticky and $self->register_parameter($sticky);
+	""
 }
 
 sub _bool($) {
