@@ -342,8 +342,7 @@ sub _has_param {
 sub _has_sticky {
 	my ($self, $name) = @_;
 	my $f = $self->{".fieldnames"};
-	ref $f eq "HASH" && $f->{$name} and return 1;
-	return 0;
+	ref $f eq "HASH" && $f->{$name} ? 1 : 0
 }
 
 sub _has_value {
