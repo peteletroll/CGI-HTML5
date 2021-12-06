@@ -415,6 +415,7 @@ our %EMPTY = map { $_ => 1 } qw(
 );
 
 our %PREFIX = (
+	form => \&_form_prefix,
 	html => "$DOCTYPE\n",
 );
 
@@ -431,6 +432,7 @@ our %INNER_PREFIX = (
 );
 
 our %INNER_SUFFIX = (
+	form => \&_form_inner_suffix,
 );
 
 our %SUFFIX = (
@@ -473,6 +475,25 @@ sub _sticky_suffix {
 			and $sticky = $name;
 	}
 	$sticky and $self->register_parameter($sticky);
+	""
+}
+
+sub _form_prefix {
+	my ($self) = @_;
+	$self->{'.parametersToAdd'} = { };
+	""
+}
+
+sub _form_inner_suffix {
+	my ($self) = @_;
+	my @cgifields = sort keys %{$self->{'.parametersToAdd'} || { }};
+	if (@cgifields) {
+		return "<div>"
+			. CORE::join("", map {
+					_open_tag("input", { type => "hidden", name => ".cgifields", value => $_ })
+				} sort keys %{$self->{'.parametersToAdd'}})
+			. "</div>"
+	}
 	""
 }
 
