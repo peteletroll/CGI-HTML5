@@ -430,6 +430,10 @@ our %INNER_PREFIX = (
 	ul => "\n",
 );
 
+our %INNER_SUFFIX = (
+	i => "\n",
+);
+
 our %SUFFIX = (
 	base => "\n",
 	body => "\n",
@@ -518,6 +522,7 @@ sub _element_generator($) {
 	my ($elt) = @_;
 	my $prefix = $PREFIX{$elt} || "";
 	my $inner_prefix = $INNER_PREFIX{$elt} || "";
+	my $inner_suffix = $INNER_SUFFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
