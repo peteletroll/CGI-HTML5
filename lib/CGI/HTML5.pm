@@ -509,6 +509,11 @@ sub _empty_element_generator($) {
 	}
 }
 
+sub _eltcb {
+	my ($self, $thingy) = @_;
+	_iscode($thingy) ? $thingy->($self): $thingy
+}
+
 sub _element_generator($) {
 	my ($elt) = @_;
 	my $prefix = $PREFIX{$elt} || "";
@@ -533,7 +538,7 @@ sub _element_generator($) {
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
 				push @ret, $prefix . $open . $inner_prefix . "$c" . $close
-					. ($sufcb ? $suffix->($self) : $suffix);
+					. $self->_eltcb($suffix);
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
 		} else {
@@ -547,7 +552,7 @@ sub _element_generator($) {
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				push @ret, "$c";
 			}
-			push @ret, $close, ($sufcb ? $suffix->($self) : $suffix);
+			push @ret, $close, $self->_eltcb($suffix);
 			$ret[1] = _open_tag($elt, $attr);
 			return _htmlstring(@ret)
 		}
