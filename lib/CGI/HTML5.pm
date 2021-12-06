@@ -430,6 +430,9 @@ our %INNER_PREFIX = (
 	ul => "\n",
 );
 
+our %INNER_SUFFIX = (
+);
+
 our %SUFFIX = (
 	base => "\n",
 	body => "\n",
@@ -518,6 +521,7 @@ sub _element_generator($) {
 	my ($elt) = @_;
 	my $prefix = $PREFIX{$elt} || "";
 	my $inner_prefix = $INNER_PREFIX{$elt} || "";
+	my $inner_suffix = $INNER_SUFFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
@@ -536,7 +540,8 @@ sub _element_generator($) {
 				}
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
-				push @ret, $self->_cb($prefix) . $open . $self->_cb($inner_prefix) . "$c" . $close
+				push @ret, $self->_cb($prefix) . $open . $self->_cb($inner_prefix) . "$c"
+					. $self->_cb($inner_suffix) . $close
 					. $self->_cb($suffix);
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
@@ -551,7 +556,7 @@ sub _element_generator($) {
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				push @ret, "$c";
 			}
-			push @ret, $close, $self->_cb($suffix);
+			push @ret, $self->_cb($inner_suffix), $close, $self->_cb($suffix);
 			$ret[1] = _open_tag($elt, $attr);
 			return _htmlstring(@ret)
 		}
