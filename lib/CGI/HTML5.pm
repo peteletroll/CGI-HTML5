@@ -504,8 +504,8 @@ sub _empty_element_generator($) {
 		}
 		$flags and croak "flag '$flags' not allowed for <$elt>";
 		@_ and croak "no content allowed in <$elt>";
-		_htmlstring($prefix, _open_tag($elt, $attr),
-			(_iscode($suffix) ? $suffix->($self) : $suffix))
+		_htmlstring($self->_eltcb($prefix), _open_tag($elt, $attr),
+			$self->_eltcb($suffix))
 	}
 }
 
@@ -519,7 +519,6 @@ sub _element_generator($) {
 	my $prefix = $PREFIX{$elt} || "";
 	my $inner_prefix = $INNER_PREFIX{$elt} || "";
 	my $suffix = $SUFFIX{$elt} || "";
-	my $sufcb = _iscode($suffix);
 	sub {
 		my $self = shift;
 		my $flags = shift;
@@ -537,12 +536,12 @@ sub _element_generator($) {
 				}
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
-				push @ret, $prefix . $open . $inner_prefix . "$c" . $close
+				push @ret, $self->_eltcb($prefix) . $open . $self->_eltcb($inner_prefix) . "$c" . $close
 					. $self->_eltcb($suffix);
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
 		} else {
-			push @ret, $prefix, undef, $inner_prefix;
+			push @ret, $self->_eltcb($prefix), undef, $self->_eltcb($inner_prefix);
 			foreach my $c (@_) {
 				my $r = ref $c;
 				if ($r eq "HASH") {
