@@ -50,7 +50,9 @@ is_deeply($Q->hs(\"input", { name => "c", type => "checkbox", value => "c1" }, $
 	"<input checked name=\"c\" type=\"checkbox\" value=\"c1\">");
 is_deeply($Q->hs(\"input", { name => "c", type => "checkbox", value => "c2" }, $Q->sticky("c1")),
 	"<input name=\"c\" type=\"checkbox\" value=\"c2\">");
-is($Q->end_form(), "<div><input type=\"hidden\" name=\".cgifields\" value=\"c\" ><input type=\"hidden\" name=\".cgifields\" value=\"a\" ></div>\n</form>");
+my $ef = $Q->end_form();
+ok($ef eq "<div><input type=\"hidden\" name=\".cgifields\" value=\"a\" ><input type=\"hidden\" name=\".cgifields\" value=\"c\" ></div>\n</form>"
+	|| $ef eq "<div><input type=\"hidden\" name=\".cgifields\" value=\"c\" ><input type=\"hidden\" name=\".cgifields\" value=\"a\" ></div>\n</form>");
 
 my $Q0 = CGI::HTML5->new("");
 is_deeply($Q0->hs(\"input", { name => "c", type => "checkbox", value => "c1" }, $Q0->sticky("c1")),
