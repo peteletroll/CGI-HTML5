@@ -763,13 +763,13 @@ our %ENT = (
 
 sub _escape_text($) {
 	my ($s) = @_;
-	$s =~ s{([<>&\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	$s =~ s{([<>&\xa0])}{ $ENT{$1} || sprintf("&#x%x;", ord($1)) }ges;
 	_htmlstring($s)
 }
 
 sub _escape_attr($) {
 	my ($s) = @_;
-	$s =~ s{([<>&'"\x00-\x1f\xa0])}{ $ENT{$1} ||= sprintf("&#x%x;", ord($1)) }ges;
+	$s =~ s{([<>&'"\x00-\x1f\xa0])}{ $ENT{$1} || sprintf("&#x%x;", ord($1)) }ges;
 	$s
 }
 
