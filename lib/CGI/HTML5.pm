@@ -414,7 +414,7 @@ our %EMPTY = map { $_ => 1 } qw(
 	wbr
 );
 
-our %PREFIX = (
+our %OUTER_PREFIX = (
 	form => \&_form_prefix,
 	html => "$DOCTYPE\n",
 );
@@ -435,7 +435,7 @@ our %INNER_SUFFIX = (
 	form => \&_form_inner_suffix,
 );
 
-our %SUFFIX = (
+our %OUTER_SUFFIX = (
 	base => "\n",
 	body => "\n",
 	div => "\n",
@@ -521,8 +521,8 @@ sub _cb {
 
 sub _empty_element_generator($) {
 	my ($elt) = @_;
-	my $prefix = $PREFIX{$elt} || "";
-	my $suffix = $SUFFIX{$elt} || "";
+	my $outer_prefix = $OUTER_PREFIX{$elt} || "";
+	my $outer_suffix = $OUTER_SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
 		my $flags = shift;
@@ -532,17 +532,17 @@ sub _empty_element_generator($) {
 		}
 		$flags and croak "flag '$flags' not allowed for <$elt>";
 		@_ and croak "no content allowed in <$elt>";
-		_htmlstring($self->_cb($prefix), _open_tag($elt, $attr),
-			$self->_cb($suffix))
+		_htmlstring($self->_cb($outer_prefix), _open_tag($elt, $attr),
+			$self->_cb($outer_suffix))
 	}
 }
 
 sub _element_generator($) {
 	my ($elt) = @_;
-	my $prefix = $PREFIX{$elt} || "";
+	my $outer_prefix = $OUTER_PREFIX{$elt} || "";
 	my $inner_prefix = $INNER_PREFIX{$elt} || "";
 	my $inner_suffix = $INNER_SUFFIX{$elt} || "";
-	my $suffix = $SUFFIX{$elt} || "";
+	my $outer_suffix = $OUTER_SUFFIX{$elt} || "";
 	sub {
 		my $self = shift;
 		my $flags = shift;
@@ -560,13 +560,13 @@ sub _element_generator($) {
 				}
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				$open ||= _open_tag($elt, $attr);
-				push @ret, $self->_cb($prefix) . $open . $self->_cb($inner_prefix) . "$c"
+				push @ret, $self->_cb($outer_prefix) . $open . $self->_cb($inner_prefix) . "$c"
 					. $self->_cb($inner_suffix) . $close
-					. $self->_cb($suffix);
+					. $self->_cb($outer_suffix);
 			}
 			return wantarray ? map { _htmlstring($_) } @ret : _htmlstring(@ret)
 		} else {
-			push @ret, $self->_cb($prefix), undef, $self->_cb($inner_prefix);
+			push @ret, $self->_cb($outer_prefix), undef, $self->_cb($inner_prefix);
 			foreach my $c (@_) {
 				my $r = ref $c;
 				if ($r eq "HASH") {
@@ -576,7 +576,7 @@ sub _element_generator($) {
 				$r eq "CGI::HTML5::HTMLString" or croak "unsupported reference to $r";
 				push @ret, "$c";
 			}
-			push @ret, $self->_cb($inner_suffix), $close, $self->_cb($suffix);
+			push @ret, $self->_cb($inner_suffix), $close, $self->_cb($outer_suffix);
 			$ret[1] = _open_tag($elt, $attr);
 			return _htmlstring(@ret)
 		}
