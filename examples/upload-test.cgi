@@ -25,6 +25,8 @@ use CGI::Carp qw(fatalsToBrowser);
 my $Q = CGI::HTML5->new();
 # my $Q = CGI->new();
 
+binmode \*STDOUT, ":utf8";
+
 print $Q->header();
 
 print $Q->start_html(-title => "file upload test");
