@@ -474,7 +474,7 @@ sub _sticky_suffix {
 		$type eq "checkbox" || $type eq "radio"
 			and $sticky = $name;
 	}
-	$sticky and $self->register_parameter($sticky);
+	defined $sticky and $self->register_parameter($sticky);
 	""
 }
 
