@@ -3,6 +3,10 @@ lib/CGI/HTML5.pm
 Makefile.PL
 MANIFEST
 README
+README.md
+LICENSE
+examples/form-test.cgi
+examples/upload-test.cgi
 t/000-use.t
 t/001-new.t
 t/002-escape.t
