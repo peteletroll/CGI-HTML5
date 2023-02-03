@@ -73,7 +73,6 @@ sub ascii {
        @_ > 1 ?
                $_[0]->_extra("ascii", $_[1]) :
                $_[0]->_extra("ascii")
-
 }
 
 ### CGI.pm compatibility
