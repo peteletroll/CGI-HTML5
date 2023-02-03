@@ -2,7 +2,11 @@ Changes
 lib/CGI/HTML5.pm
 Makefile.PL
 MANIFEST
+LICENSE
 README
+README.md
+examples/form-test.cgi
+examples/upload-test.cgi
 t/000-use.t
 t/001-new.t
 t/002-escape.t
