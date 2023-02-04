@@ -4,7 +4,8 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'CGI::HTML5',
     VERSION_FROM      => 'lib/CGI/HTML5.pm', # finds $VERSION, requires EU::MM from perl >= 5.5
-    PREREQ_PM         => { CGI => 0, Pod::Markdown => 0 }, # e.g., Module::Name => 1.1
+    PREREQ_PM         => { CGI => 0 }, # e.g., Module::Name => 1.1
+    BUILD_REQUIRES    => { Pod::Markdown => 0 }, # e.g., Module::Name => 1.1
     ABSTRACT_FROM     => 'lib/CGI/HTML5.pm', # retrieve abstract from module
     AUTHOR            => 'Pietro Cagnoni <pietro@>',
     #LICENSE           => 'perl',
