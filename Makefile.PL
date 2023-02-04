@@ -17,7 +17,7 @@ WriteMakefile(
 sub MY::postamble {
 	return <<'END'
 
-dist: README.md
+all:: README.md
 
 README.md: lib/CGI/HTML5.pm
 	pod2markdown $^ > $@
