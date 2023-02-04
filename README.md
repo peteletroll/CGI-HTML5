@@ -73,11 +73,11 @@ CGI::HTML5 intentionally lacks XHTML generation capabilities.
 
 # AUTHOR
 
-Pietro Cagnoni, <pietro.cagnoni@gmail.com>
+peteletroll
 
 # COPYRIGHT AND LICENSE
 
-Copyright (C) 2020 by Pietro Cagnoni
+Copyright (C) 2020 by peteletroll
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.28.1 or,

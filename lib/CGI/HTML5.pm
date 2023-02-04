@@ -904,11 +904,11 @@ L<HTML::Tiny> - Lightweight, dependency free HTML/XML generation
 
 =head1 AUTHOR
 
-Pietro Cagnoni, E<lt>pietro.cagnoni@gmail.comE<gt>
+peteletroll
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2020 by Pietro Cagnoni
+Copyright (C) 2020 by peteletroll
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.28.1 or,
