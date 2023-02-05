@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 
-use lib "/home/pietro/perl/CGI-HTML5/lib";
 use CGI::HTML5;
 use CGI::Carp qw(fatalsToBrowser);
 
