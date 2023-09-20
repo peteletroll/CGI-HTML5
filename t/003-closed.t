@@ -13,7 +13,7 @@ my $t;
 
 $t = $Q->comment("this --> that");
 isa_ok($t, "CGI::HTML5::HTMLString");
-is_deeply($t, "<!-- this - - > that -->");
+is_deeply($t, "<!-- this - -> that -->");
 
 $t = $Q->hs(\"br");
 isa_ok($t, "CGI::HTML5::HTMLString");
