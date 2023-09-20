@@ -46,7 +46,7 @@ sub hs {
 sub comment {
 	my ($self) = shift;
 	my $comment = CORE::join("", @_);
-	$comment =~ s/-->/- - >/g;
+	$comment =~ s/-(?:-)/- /g; # double hyphen is not allowed in comments
 	_htmlstring("<!-- $comment -->")
 }
 
