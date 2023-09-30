@@ -808,6 +808,49 @@ sub _to_ascii($) {
 	$_[0] =~ s{([\x{80}-\x{10ffff}])}{ sprintf("&#x%x;", ord($1)) }ges;
 }
 
+### build CGI::HTML5 structure from HTML
+
+sub _parse_html_aux($);
+
+sub parse_html {
+	my $self = shift;
+
+	require HTML::TreeBuilder;
+	my $tree = HTML::TreeBuilder->new();
+	{
+		foreach (@_) {
+			_fix_utf8($_);
+			$tree->parse($_);
+		}
+	}
+	$tree->eof();
+
+	my @ret = ();
+	push @ret, _parse_html_aux($_) foreach $tree->guts;
+	$tree->delete();
+	@ret == 1 ? $ret[0] : \@ret
+}
+
+sub _parse_html_aux($) {
+	my ($e) = @_;
+	ref $e or return $e;
+	$e->isa("HTML::Element") or croak "convert() can't handle ", ref($e), "\n";
+
+	my @ret = ();
+	push @ret, \($e->tag);
+
+	my %attr = $e->all_external_attr;
+	delete $attr{"/"};
+	foreach (keys %attr) {
+		$attr{$_} eq $_ and $attr{$_} = \(my $o = 1);
+	}
+	push @ret, \%attr if %attr;
+
+	push @ret, _parse_html_aux($_) foreach $e->content_list;
+
+	\@ret
+}
+
 1;
 
 __END__
