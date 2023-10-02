@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Getopt::Std;
-use Data::Dumper;
 
 use CGI::HTML5;
 
@@ -21,6 +20,19 @@ sub gethtml($) {
 	$res->decoded_content
 }
 
+sub deparse($) {
+	my ($tree) = @_;
+
+	if (eval { require Data::Dump; 1 }) {
+		return Data::Dump::dump($tree);
+	}
+
+	require Data::Dumper;
+	my $dumper = Data::Dumper->new([ $tree ]);
+	$dumper->Terse(1)->Indent(1)->Useqq(1)->Quotekeys(0)->Sortkeys(1);
+	$dumper->Dump()
+}
+
 my %opt = ();
 getopts("u:", \%opt) or exit 1;
 
@@ -32,7 +44,7 @@ if (exists $opt{u}) {
 
 @html or push @html, <>;
 
-my $dumper = Data::Dumper->new([ CGI::HTML5->parse_html(@html) ]);
-$dumper->Terse(1)->Indent(1)->Useqq(1)->Quotekeys(0)->Sortkeys(1);
-print $dumper->Dump(), "\n";
+my $tree = CGI::HTML5->parse_html(@html);
+
+print deparse($tree), "\n";
 
