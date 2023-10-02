@@ -7,8 +7,28 @@ use Getopt::Std;
 
 use CGI::HTML5;
 
+sub gethtml($);
+sub deparse($);
+
 my $progname = $0;
 $progname =~ s/.*\///;
+
+my %opt = ();
+getopts("u:", \%opt) or exit 1;
+
+my @html = ();
+
+if (exists $opt{u}) {
+	push @html, gethtml($opt{u});
+}
+
+@html or push @html, <>;
+
+my $tree = CGI::HTML5->parse_html(@html);
+
+print deparse($tree), "\n";
+
+exit 0;
 
 sub gethtml($) {
 	my ($url) = @_;
@@ -32,19 +52,4 @@ sub deparse($) {
 	$dumper->Terse(1)->Indent(1)->Useqq(1)->Quotekeys(0)->Sortkeys(1);
 	$dumper->Dump()
 }
-
-my %opt = ();
-getopts("u:", \%opt) or exit 1;
-
-my @html = ();
-
-if (exists $opt{u}) {
-	push @html, gethtml($opt{u});
-}
-
-@html or push @html, <>;
-
-my $tree = CGI::HTML5->parse_html(@html);
-
-print deparse($tree), "\n";
 
