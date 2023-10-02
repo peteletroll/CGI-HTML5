@@ -811,17 +811,19 @@ sub _to_ascii($) {
 ### build CGI::HTML5 structure from HTML
 
 sub _parse_html_aux($);
+sub _update_tagset();
 
 sub parse_html {
 	my $self = shift;
 
+	# $HTML::TreeBuilder::DEBUG = 1;
 	require HTML::TreeBuilder;
+	_update_tagset();
 	my $tree = HTML::TreeBuilder->new();
-	{
-		foreach (@_) {
-			_fix_utf8($_);
-			$tree->parse($_);
-		}
+	$tree->warn(1);
+	foreach my $html (@_) {
+		_fix_utf8($html);
+		$tree->parse($html);
 	}
 	$tree->eof();
 
@@ -849,6 +851,21 @@ sub _parse_html_aux($) {
 	push @ret, _parse_html_aux($_) foreach $e->content_list;
 
 	\@ret
+}
+
+our $_update_tagset_done = 0;
+
+sub _update_tagset() {
+	$_update_tagset_done and return 0;
+	foreach my $tag (@ELEMENTS) {
+		$HTML::Tagset::isKnown{$tag} and next;
+		my $empty = $EMPTY{$tag};
+		# warn __PACKAGE__, ": adding \U$tag\E", ($empty ? " empty" : ""), " tag to HTML::Tagset\n";
+		$HTML::Tagset::isKnown{$tag} = 1;
+		$HTML::Tagset::isHeadOrBodyElement{$tag} = 1;
+		$HTML::Tagset::emptyElement{$tag} = 1 if $empty;
+	}
+	$_update_tagset_done = 1
 }
 
 1;
