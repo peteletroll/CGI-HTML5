@@ -14,7 +14,7 @@ my $progname = $0;
 $progname =~ s/.*\///;
 
 my %opt = ();
-getopts("u:", \%opt) or exit 1;
+getopts("ahu:", \%opt) or exit 1;
 
 my @html = ();
 
@@ -26,7 +26,16 @@ if (exists $opt{u}) {
 
 my $tree = CGI::HTML5->parse_html(@html);
 
-print deparse($tree), "\n";
+binmode \*STDOUT, ":utf8";
+if ($opt{h}) {
+	my $Q = CGI::HTML5->new();
+	$Q->ascii($opt{a});
+	my $res = $Q->hs($tree);
+	$res =~ s/\s*\z/\n/;
+	print $res;
+} else {
+	print deparse($tree), "\n";
+}
 
 exit 0;
 
