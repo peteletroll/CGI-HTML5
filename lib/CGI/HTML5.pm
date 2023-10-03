@@ -816,7 +816,6 @@ sub _update_tagset();
 sub parse_html {
 	my $self = shift;
 
-	# $HTML::TreeBuilder::DEBUG = 1;
 	require HTML::TreeBuilder;
 	_update_tagset();
 	my $tree = HTML::TreeBuilder->new();
@@ -862,8 +861,12 @@ sub _update_tagset() {
 		my $empty = $EMPTY{$tag};
 		# warn __PACKAGE__, ": adding \U$tag\E", ($empty ? " empty" : ""), " tag to HTML::Tagset\n";
 		$HTML::Tagset::isKnown{$tag} = 1;
-		$HTML::Tagset::isHeadOrBodyElement{$tag} = 1;
-		$HTML::Tagset::emptyElement{$tag} = 1 if $empty;
+		$HTML::Tagset::isBodyElement{$tag} = 1;
+		if ($empty) {
+			$HTML::Tagset::emptyElement{$tag} = 1;
+		} else {
+			$HTML::Tagset::canTighten{$tag} = 1;
+		}
 	}
 	$_update_tagset_done = 1
 }
