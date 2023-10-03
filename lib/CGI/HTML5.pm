@@ -390,7 +390,7 @@ our @ELEMENTS = qw(
 	p param picture pre progress
 	q
 	rb rp rt rtc ruby
-	s samp script section select slot small source span strong style sub summary sup
+	s samp script section select slot small source span strong style sub summary sup svg
 	table tbody td template textarea tfoot th thead time title tr track
 	u ul
 	var video
