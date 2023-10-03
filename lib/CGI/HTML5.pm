@@ -490,7 +490,7 @@ sub _form_inner_suffix {
 		return "<div>"
 			. CORE::join("", map {
 					_open_tag("input", { type => "hidden", name => ".cgifields", value => $_ })
-				} sort keys %{$self->{'.parametersToAdd'}})
+				} @cgifields)
 			. "</div>"
 	}
 	""
@@ -816,8 +816,8 @@ sub _update_tagset();
 sub parse_html {
 	my $self = shift;
 
-	require HTML::TreeBuilder;
 	_update_tagset();
+	require HTML::TreeBuilder;
 	my $tree = HTML::TreeBuilder->new();
 	$tree->warn(1);
 	foreach my $html (@_) {
@@ -856,6 +856,7 @@ our $_update_tagset_done = 0;
 
 sub _update_tagset() {
 	$_update_tagset_done and return 0;
+	require HTML::Tagset;
 	foreach my $tag (@ELEMENTS) {
 		$HTML::Tagset::isKnown{$tag} and next;
 		my $empty = $EMPTY{$tag};
@@ -868,6 +869,7 @@ sub _update_tagset() {
 			$HTML::Tagset::canTighten{$tag} = 1;
 		}
 	}
+	$HTML::Tagset::isCDATA_Parent{svg} = 1;
 	$_update_tagset_done = 1
 }
 
