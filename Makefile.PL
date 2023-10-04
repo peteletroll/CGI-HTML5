@@ -9,9 +9,8 @@ WriteMakefile(
     BUILD_REQUIRES    => { Pod::Markdown => 0 }, # e.g., Module::Name => 1.1
     ABSTRACT_FROM     => 'lib/CGI/HTML5.pm', # retrieve abstract from module
     AUTHOR            => 'peteletroll',
-    #LICENSE           => 'perl',
-    #Value must be from legacy list of licenses here
-    #http://search.cpan.org/perldoc?Module%3A%3ABuild%3A%3AAPI
+    LICENSE           => 'perl',
+    EXE_FILES         => [ 'bin/html-to-CGI-HTML5' ],
 );
 
 sub MY::postamble {
