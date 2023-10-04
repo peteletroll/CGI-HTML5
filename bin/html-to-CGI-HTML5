@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Getopt::Std;
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
 
 use CGI::HTML5;
 
@@ -13,8 +14,36 @@ sub deparse($);
 my $progname = $0;
 $progname =~ s/.*\///;
 
+sub VERSION_MESSAGE {
+	my ($out, $package, $version, $opts) = @_;
+	# print $out "VERSION ", deparse(\@_), "\n";
+	print $out "$progname $CGI::HTML5::VERSION - part of CGI::HTML5\n";
+}
+
+sub HELP_MESSAGE {
+	my ($out, $package, $version, $opts) = @_;
+	# print $out "HELP ", deparse(\@_), "\n";
+	print $out <<"ENDHELP";
+Usage: $progname [ -ah ] [ -u <url> | <file> ... ]
+Convert HTML to CGI::HTML5 data tree.
+Options:
+    -u <url>   get html from url
+    -h         reconvert to html via CGI::HTML5
+    -a         ASCII output
+ENDHELP
+}
+
+sub EXIT_MESSAGE {
+	my ($out) = @_;
+	VERSION_MESSAGE($out);
+	HELP_MESSAGE($out);
+	my $exit = ($out == \*STDOUT ? 0 : 1);
+	# print $out "$progname: exit status $exit\n";
+	exit $exit;
+}
+
 my %opt = ();
-getopts("ahu:", \%opt) or exit 1;
+getopts("ahu:", \%opt) or EXIT_MESSAGE(\*STDERR);
 
 my @html = ();
 
@@ -22,7 +51,13 @@ if (exists $opt{u}) {
 	push @html, gethtml($opt{u});
 }
 
-@html or push @html, <>;
+if (@html) {
+	@ARGV and EXIT_MESSAGE(\*STDERR);
+} else {
+	!@ARGV && -t STDIN and EXIT_MESSAGE(\*STDOUT);
+	local $/ = undef;
+	push @html, <>;
+}
 
 my $tree = CGI::HTML5->parse_html(@html);
 
