@@ -1,7 +1,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use utf8;
+
+use Test::More tests => 7;
 BEGIN { use_ok('CGI::HTML5') };
 
 $HTML::TreeBuilder::DEBUG = 0;
@@ -46,11 +48,9 @@ is_deeply(parse('<details><summary><b>s</b></summary><div><i>c</i></div></detail
 	[ \"details", [ \"summary", [ \"b", "s" ] ], [ \"div", [ \"i", "c" ] ] ],
 	"HTML5 tags");
 
-# couldn't find a way to configure <svg> as CDATA container
-# so no proper <svg> parsing yet
-foreach my $tag (qw(script style)) {
-	is_deeply(parse("<div><$tag><circle /></$tag></div>"),
-		[ \"div", [ \$tag, "<circle />" ] ],
+foreach my $tag (qw(script style svg)) {
+	is_deeply(parse("<div><$tag>€<circle name=\"€\"/></$tag></div>"),
+		[ \"div", [ \$tag, "€<circle name=\"€\"/>" ] ],
 		"$tag cdata");
 }
 

@@ -816,8 +816,9 @@ sub _to_ascii($) {
 
 ### build CGI::HTML5 structure from HTML
 
-sub _parse_html_aux($);
+sub _tree_to_struct($);
 sub _update_tagset();
+sub _convert_new_cdata_tags($);
 
 sub parse_html {
 	my $self = shift;
@@ -828,32 +829,44 @@ sub parse_html {
 	$tree->warn(1);
 	foreach my $html (@_) {
 		_fix_utf8($html);
+		$html = _convert_new_cdata_tags($html);
 		$tree->parse($html);
 	}
 	$tree->eof();
 
 	my @ret = ();
-	push @ret, _parse_html_aux($_) foreach $tree->guts;
+	push @ret, _tree_to_struct($_) foreach $tree->guts;
 	$tree->delete();
 	@ret == 1 ? $ret[0] : \@ret
 }
 
-sub _parse_html_aux($) {
+# CDATA HTML5 tags HTML::Parser doesn't know about
+our %NEW_CDATA = map { $_ => 1 } qw(svg);
+our $NEW_CDATA_REPLACER = "xmp";
+our $NEW_CDATA_NAME_ATTR = "$NEW_CDATA_REPLACER-stands-for";
+
+sub _tree_to_struct($) {
 	my ($e) = @_;
 	ref $e or return $e;
 	$e->isa("HTML::Element") or croak "convert() can't handle ", ref($e), "\n";
 
 	my @ret = ();
-	push @ret, \($e->tag);
-
+	my $tag = $e->tag;
 	my %attr = $e->all_external_attr;
 	delete $attr{"/"};
+
+	if ($tag eq $NEW_CDATA_REPLACER && exists $attr{$NEW_CDATA_NAME_ATTR}) {
+		$tag = delete $attr{$NEW_CDATA_NAME_ATTR};
+	}
+
 	foreach (keys %attr) {
 		$attr{$_} eq $_ and $attr{$_} = \(my $o = 1);
 	}
+
+	push @ret, \$tag;
 	push @ret, \%attr if %attr;
 
-	push @ret, _parse_html_aux($_) foreach $e->content_list;
+	push @ret, _tree_to_struct($_) foreach $e->content_list;
 
 	\@ret
 }
@@ -877,6 +890,34 @@ sub _update_tagset() {
 	}
 	$HTML::Tagset::isCDATA_Parent{svg} = 1;
 	$_update_tagset_done = 1
+}
+
+sub _convert_new_cdata_tags($) {
+	my ($html) = @_;
+	_fix_utf8($html);
+	require HTML::Parser;
+	my $ret = "";
+	my $p = HTML::Parser->new(
+		default_h => [ sub { $ret .= $_[0] }, "text" ],
+		start_h => [ sub {
+				my ($tag, $attr, $text) = @_;
+				if ($NEW_CDATA{$tag}) {
+					$text = _open_tag($NEW_CDATA_REPLACER,
+						{ %$attr, $NEW_CDATA_NAME_ATTR => $tag });
+				}
+				$ret .= $text;
+			}, "tagname,attr,text" ],
+		end_h => [ sub {
+				my ($tag, $text) = @_;
+				if ($NEW_CDATA{$tag}) {
+					$text = _close_tag($NEW_CDATA_REPLACER);
+				}
+				$ret .= $text;
+			}, "tagname,text" ],
+	);
+	$p->parse($html);
+	$p->eof;
+	$ret
 }
 
 1;
