@@ -107,7 +107,7 @@ sub start_html {
 	defined $head and push @head, $self->hs($head);
 
 	if (defined $script) {
-		ref $script eq "ARRAY" or $style = [ $script ];
+		ref $script eq "ARRAY" or $script = [ $script ];
 		foreach my $s (@$script) {
 			defined $s or next;
 			ref $s eq "HASH" or $s = { -src => $s };
