@@ -45,12 +45,12 @@ show_tagset();
 is_deeply(parse('<i class="c">t</i>'), [ \"i", { class => "c" }, "t" ], "simple html");
 
 is_deeply(parse('<details><summary><b>s</b></summary><div><i>c</i></div></details>'),
-	[ \"details", [ \"summary", [ \"b", "s" ] ], [ \"div", [ \"i", "c" ] ] ],
+	[ \"details", { }, [ \"summary", { }, [ \"b", { }, "s" ] ], [ \"div", { }, [ \"i", { }, "c" ] ] ],
 	"HTML5 tags");
 
 foreach my $tag (qw(script style svg)) {
 	is_deeply(parse("<div><$tag>€<circle name=\"€\"/></$tag></div>"),
-		[ \"div", [ \$tag, "€<circle name=\"€\"/>" ] ],
+		[ \"div", { }, [ \$tag, { }, "€<circle name=\"€\"/>" ] ],
 		"$tag cdata");
 }
 
