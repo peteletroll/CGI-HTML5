@@ -865,7 +865,7 @@ sub _tree_to_struct($) {
 	}
 
 	push @ret, \$tag;
-	push @ret, \%attr if %attr;
+	push @ret, \%attr;
 
 	push @ret, _tree_to_struct($_) foreach $e->content_list;
 
