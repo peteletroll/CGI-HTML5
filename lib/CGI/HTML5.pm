@@ -687,7 +687,6 @@ sub _attr($) {
 	$a or return "";
 	my $ret = "";
 	foreach my $n (sort keys %$a) {
-		$n =~ /^-/ and next;
 		my $v = $a->{$n};
 		defined $v or next;
 		$n =~ $VALID_ATTR or croak "unallowed attribute name '$n'";
