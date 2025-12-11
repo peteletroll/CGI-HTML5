@@ -15,9 +15,6 @@ our $EXTRA = "{" . __PACKAGE__ . "}";
 
 our $DOCTYPE = "<!DOCTYPE html>";
 
-our $VALID_TAG = qr/^[0-9A-Za-z:\-]+$/;
-our $VALID_ATTR = qr/^[^\s<>&'"=\/]+$/;
-
 sub new {
 	my $pkg = shift;
 	my $new = $pkg->SUPER::new(@_);
@@ -55,18 +52,24 @@ sub literal {
 	_htmlstring(@_)
 }
 
+sub _chktag($) {
+	$_[0] =~ /^[0-9A-Za-z:\-]+$/ ? $_[0] : croak "unallowed tag name '$_[0]'";
+}
+
+sub _chkattr($) {
+	$_[0] =~ /^[^\s<>&'"=\/]+$/ ? $_[0] : croak "unallowed attribute name '$_[0]'";
+}
+
 sub open {
 	my ($self, $tag, %attr) = @_;
-	$tag =~ $VALID_TAG or croak "unallowed tag name '$tag'";
-	my $def = $CGI::HTML5::DEFAULT_ATTR{$tag};
+	my $def = $CGI::HTML5::DEFAULT_ATTR{_chktag($tag)};
 	$def and %attr = (%$def, %attr);
 	_htmlstring(_open_tag($tag, \%attr))
 }
 
 sub close {
 	my ($self, $tag) = @_;
-	$tag =~ $VALID_TAG or croak "unallowed tag name '$tag'";
-	_htmlstring(_close_tag($tag))
+	_htmlstring(_close_tag(_chktag($tag)))
 }
 
 sub ascii {
@@ -687,9 +690,8 @@ sub _attr($) {
 	$a or return "";
 	my $ret = "";
 	foreach my $n (sort keys %$a) {
-		my $v = $a->{$n};
+		my $v = $a->{_chkattr($n)};
 		defined $v or next;
-		$n =~ $VALID_ATTR or croak "unallowed attribute name '$n'";
 		if (ref $v eq "SCALAR") {
 			_bool($v) and $ret .= " $n";
 		} else {
