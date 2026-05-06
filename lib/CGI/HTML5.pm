@@ -98,10 +98,7 @@ sub start_html {
 		grep { $_ ne "charset" && defined $meta->{$_} }
 		sort keys %$meta;
 	defined $title and push @head, [ \"title", $title ];
-	if (defined $author) {
-		_fix_utf8($author);
-		push @head, [ \"link", { rel => "author", href => "mailto:" . _escape_url($author) } ];
-	}
+	defined $author and push @head, [ \"link", { rel => "author", href => "mailto:" . _escape_url($author) } ];
 	($base || defined $xbase || defined $target)
 		and push @head, [ \"base", { href => $xbase || $self->url(-path => 1), target => $target } ];
 	defined $head and push @head, $self->hs($head);
