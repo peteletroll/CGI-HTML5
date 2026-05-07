@@ -436,6 +436,7 @@ our %INNER_SUFFIX = (
 );
 
 our %OUTER_SUFFIX = (
+	article => "\n",
 	base => "\n",
 	body => "\n",
 	div => "\n",
@@ -446,6 +447,7 @@ our %OUTER_SUFFIX = (
 	h5 => "\n",
 	h6 => "\n",
 	head => "\n",
+	header => "\n",
 	html => "\n",
 	input => \&_sticky_suffix,
 	li => "\n",
@@ -455,6 +457,7 @@ our %OUTER_SUFFIX = (
 	optgroup => "\n",
 	option => "\n",
 	p => "\n",
+	section => "\n",
 	select => \&_sticky_suffix,
 	table => "\n",
 	tbody => "\n",
