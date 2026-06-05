@@ -420,6 +420,7 @@ our %OUTER_PREFIX = (
 );
 
 our %INNER_PREFIX = (
+	details => "\n",
 	head => "\n",
 	ol => "\n",
 	optgroup => "\n",
@@ -439,6 +440,7 @@ our %OUTER_SUFFIX = (
 	article => "\n",
 	base => "\n",
 	body => "\n",
+	details => "\n",
 	div => "\n",
 	h1 => "\n",
 	h2 => "\n",
@@ -459,6 +461,7 @@ our %OUTER_SUFFIX = (
 	p => "\n",
 	section => "\n",
 	select => \&_sticky_suffix,
+	summary => "\n",
 	table => "\n",
 	tbody => "\n",
 	td => "\n",
