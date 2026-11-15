@@ -111,7 +111,8 @@ sub start_html {
 		foreach my $s (@$script) {
 			defined $s or next;
 			ref $s eq "HASH" or $s = { -src => $s };
-			push @head, [ \"script", { src => $s->{-src} }, $self->literal($s->{-code}) ], "\n";
+			my $attr = $s->{-attr} || { };
+			push @head, [ \"script", $attr, { src => $s->{-src} }, $self->literal($s->{-code}) ], "\n";
 		}
 	}
 	if (defined $style) {
