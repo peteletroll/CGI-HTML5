@@ -119,8 +119,9 @@ sub start_html {
 		ref $style eq "ARRAY" or $style = [ $style ];
 		foreach my $s (@$style) {
 			ref $s eq "HASH" or $s = { -src => $s };
-			defined $s->{-src} and push @head, [ \"link", { rel => "stylesheet", href => $s->{-src} } ];
-			defined $s->{-code} and push @head, [ \"style", $self->literal($s->{-code}) ], "\n";
+			my $attr = $s->{-attr} || { };
+			defined $s->{-src} and push @head, [ \"link", $attr, { rel => "stylesheet", href => $s->{-src} } ];
+			defined $s->{-code} and push @head, [ \"style", $attr, $self->literal($s->{-code}) ], "\n";
 		}
 	}
 
